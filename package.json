@@ -1,0 +1,15 @@
+{
+  "name": "sukyoo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "senior": "npm run start --workspace apps/senior",
+    "family": "npm run start --workspace apps/family"
+  },
+  "allowScripts": {
+    "@sentry/cli@2.58.4": true
+  }
+}
