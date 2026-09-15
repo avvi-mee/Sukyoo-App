@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+/* Same palette as apps/senior/src/theme/tokens.ts — warm, high-contrast,
+   one accent per vertical — so the web portal reads as the same product as
+   the mobile apps, not a second brand. */
+@theme {
+  --color-bg: #faf5ee;
+  --color-surface: #ffffff;
+  --color-ink: #1a1a1a;
+  --color-ink-muted: #5a5550;
+  --color-line: #e7dfd3;
+  --color-coral: #d9622b;
+  --color-coral-tint: #fbe7da;
+  --color-green: #3e8e5b;
+  --color-green-tint: #e3f1e8;
+  --color-amber: #c98a1d;
+  --color-amber-tint: #f8ecd6;
+  --color-red: #c0392b;
+  --color-red-tint: #f8deda;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* An unacknowledged SOS should be impossible to miss on the family side. */
+@keyframes sos-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(192 57 43 / 45%);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgb(192 57 43 / 0%);
+  }
+}
+
+.sos-pulse {
+  animation: sos-pulse 1.6s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sos-pulse {
+    animation: none;
+    outline: 3px solid var(--color-red);
+  }
+}

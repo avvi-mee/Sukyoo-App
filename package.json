@@ -9,7 +9,7 @@
     "senior": "npm run start --workspace apps/senior",
     "family": "npm run start --workspace apps/family",
     "test": "node --test supabase/tests/*.test.mjs",
-    "typecheck": "npm run typecheck --workspace apps/senior && npm run typecheck --workspace apps/family && npm run typecheck --workspace apps/admin",
+    "typecheck": "npm run typecheck --workspace apps/senior && npm run typecheck --workspace apps/family && npm run typecheck --workspace apps/admin && npm run typecheck --workspace apps/web",
     "build:senior:android": "npm run build:android --workspace apps/senior",
     "build:senior:ios": "npm run build:ios --workspace apps/senior",
     "build:family:android": "npm run build:android --workspace apps/family",
@@ -19,7 +19,9 @@
     "submit:senior:android": "npm run submit:android --workspace apps/senior",
     "submit:family:android": "npm run submit:android --workspace apps/family",
     "admin": "npm run dev --workspace apps/admin",
-    "build:admin": "npm run build --workspace apps/admin"
+    "build:admin": "npm run build --workspace apps/admin",
+    "web": "npm run dev --workspace apps/web",
+    "build:web": "npm run build --workspace apps/web"
   },
   "allowScripts": {
     "@sentry/cli@2.58.4": true
