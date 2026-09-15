@@ -1,3 +1,5 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 export type MainTabParamList = {
   Home: undefined;
   Health: undefined;
@@ -7,8 +9,11 @@ export type MainTabParamList = {
 };
 
 export type RootStackParamList = {
-  MainTabs: undefined;
+  // NavigatorScreenParams so a root-level screen can jump straight to a tab
+  // (`navigate('MainTabs', { screen: 'Health' })`) with the target checked.
+  MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   LinkSenior: undefined;
+  Privacy: undefined;
   SOSAlert: { sosEventId: string; seniorId: string };
   VideoCall:
     | { mode: 'start'; calleeId: string; calleeName: string }

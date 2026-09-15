@@ -4,6 +4,21 @@ import notifee, { AndroidCategory, AndroidImportance } from 'react-native-notify
 
 export const BACKGROUND_NOTIFICATION_TASK = 'SUKYOO_BACKGROUND_NOTIFICATION_TASK';
 
+// iOS has no equivalent of Android's full-screen intent — `fullScreenAction`
+// and channels are silently ignored there. `timeSensitive` is the strongest
+// presentation available without Apple's Critical Alerts entitlement, which is
+// requested case-by-case and can be refused; it breaks through Focus modes but
+// not through the ringer switch. Without this block an SOS on an iPhone is an
+// ordinary banner.
+//
+// Escalating to a genuinely full-screen incoming call on iOS needs CallKit +
+// PushKit, which is a separate non-FCM push path — see docs/BUILDING.md.
+const IOS_ALERT = {
+  sound: 'default',
+  interruptionLevel: 'timeSensitive',
+  critical: false,
+} as const;
+
 // The sos-trigger Edge Function sends a data-only FCM message (see
 // supabase/functions/sos-trigger) specifically so this task — not the OS's
 // default notification tray — decides how to present it, even when the app
@@ -28,6 +43,7 @@ TaskManager.defineTask<Notifications.NotificationTaskPayload>(BACKGROUND_NOTIFIC
         pressAction: { id: 'default' },
         fullScreenAction: { id: 'default' },
       },
+      ios: IOS_ALERT,
     });
   } else if (payload.type === 'incoming_call') {
     await notifee.displayNotification({
@@ -41,6 +57,7 @@ TaskManager.defineTask<Notifications.NotificationTaskPayload>(BACKGROUND_NOTIFIC
         pressAction: { id: 'default' },
         fullScreenAction: { id: 'default' },
       },
+      ios: IOS_ALERT,
     });
   }
 });

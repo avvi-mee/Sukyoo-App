@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { supabase, useAddLifeStoryEntry, useLifeStoryEntries } from '@sukyoo/core';
 import { BigButton } from '../../components/BigButton';
 import { ListRow } from '../../components/ListRow';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { SectionHeader } from '../../components/SectionHeader';
 import { useCurrentUserId } from '../../hooks/useCurrentUserId';
+import { notify } from '../../notify';
 import { colors, spacing } from '../../theme/tokens';
+import { useProtectedScreen } from '../../hooks/useProtectedScreen';
 
 export function LifeStoryRecorderScreen() {
+  // Health and life-story data: block screenshots, screen recording and the
+  // app-switcher snapshot while this screen is focused.
+  useProtectedScreen('LifeStoryRecorderScreen');
+
   const userId = useCurrentUserId();
   const { data: entries } = useLifeStoryEntries(userId);
   const addEntry = useAddLifeStoryEntry();
@@ -20,7 +27,7 @@ export function LifeStoryRecorderScreen() {
 
   useEffect(() => {
     AudioModule.requestRecordingPermissionsAsync().then((status) => {
-      if (!status.granted) Alert.alert('Microphone needed', 'Allow microphone access to record your story.');
+      if (!status.granted) notify('Microphone needed', 'Allow microphone access to record your story.');
     });
     setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true });
   }, []);
@@ -44,7 +51,7 @@ export function LifeStoryRecorderScreen() {
       await addEntry.mutateAsync({ ownerId: userId, title: title || 'Untitled story', entryType: 'audio', storagePath: path });
       setTitle('');
     } catch (e) {
-      Alert.alert('Could not save recording', e instanceof Error ? e.message : 'Try again.');
+      notify('Could not save recording', e instanceof Error ? e.message : 'Try again.');
     } finally {
       setSaving(false);
     }
@@ -52,9 +59,15 @@ export function LifeStoryRecorderScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <SectionHeader title="Record your life story" subtitle="Leave a legacy for your family" />
+      <ScreenHeader title="Record your life story" subtitle="Leave a legacy for your family" />
 
-      <TextInput style={styles.input} placeholder="Give this story a title" value={title} onChangeText={setTitle} />
+      <TextInput
+        style={styles.input}
+        placeholder="Give this story a title"
+        placeholderTextColor={colors.inkMuted}
+        value={title}
+        onChangeText={setTitle}
+      />
 
       {recorderState.isRecording ? (
         <View style={styles.recordingRow}>
@@ -67,7 +80,7 @@ export function LifeStoryRecorderScreen() {
 
       <SectionHeader title="Your stories" />
       {(entries ?? []).map((e) => (
-        <ListRow key={e.id} icon="🎙️" title={e.title} subtitle={new Date(e.created_at).toLocaleDateString()} />
+        <ListRow key={e.id} icon="story" title={e.title} subtitle={new Date(e.created_at).toLocaleDateString()} />
       ))}
       {!entries?.length ? <Text style={styles.empty}>No stories recorded yet.</Text> : null}
     </ScrollView>
@@ -77,7 +90,17 @@ export function LifeStoryRecorderScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl * 2 },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: spacing.md, backgroundColor: colors.surface },
+  // color is required, not cosmetic: without it a TextInput falls back to a
+  // native default that Android's system-wide "force dark" feature can invert
+  // to near-white on this white surface, making typed text invisible.
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    color: colors.ink,
+  },
   recordingRow: { gap: spacing.sm },
   recordingText: { color: colors.statusHigh, fontWeight: '700', textAlign: 'center' },
   empty: { color: colors.inkMuted },

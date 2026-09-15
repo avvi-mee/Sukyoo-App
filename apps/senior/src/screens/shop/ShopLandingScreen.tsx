@@ -1,35 +1,98 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useProductCategories, useProducts } from '@sukyoo/core';
+import { HeroBanner } from '../../components/HeroBanner';
+import type { IconName } from '../../components/Icon';
+import { ListRow } from '../../components/ListRow';
 import { ModuleGridTile } from '../../components/ModuleGridTile';
-import { SectionHeader } from '../../components/SectionHeader';
-import { colors, fontSize, radii, spacing } from '../../theme/tokens';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { colors, fontSize, minTouchTarget, radii, spacing } from '../../theme/tokens';
 import { useFontScale } from '../../theme/FontScaleContext';
 import type { ShopStackParamList } from '../../navigation/types';
 
-const MODULES: { key: keyof ShopStackParamList; icon: string; title: string; subtitle: string }[] = [
-  { key: 'CoreCategories', icon: '🛍️', title: 'Core categories', subtitle: 'Curated for senior living' },
-  { key: 'Convenience', icon: '🔄', title: 'Convenience', subtitle: 'Auto-reorder, assisted & voice shopping' },
-  { key: 'ServicesMarketplace', icon: '🛠️', title: 'Services marketplace', subtitle: 'Repairs, help & support at home' },
-  { key: 'TrustEase', icon: '✅', title: 'Trust & ease', subtitle: 'Verified sellers, easy returns' },
+const MODULES: { key: keyof ShopStackParamList; icon: IconName; title: string; subtitle: string; tint: string }[] = [
+  { key: 'CoreCategories', icon: 'cart', title: 'Core categories', subtitle: 'Health, grocery, apparel & more', tint: colors.greenTint },
+  { key: 'Convenience', icon: 'subscribe', title: 'Convenience', subtitle: 'Subscriptions & assisted shopping', tint: colors.coralTint },
+  { key: 'ServicesMarketplace', icon: 'services', title: 'Services marketplace', subtitle: 'Home repair, help & advisory', tint: colors.greenTint },
+  { key: 'TrustEase', icon: 'shield', title: 'Trust & ease', subtitle: 'Verified sellers, easy returns', tint: colors.coralTint },
 ];
 
 export function ShopLandingScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ShopStackParamList>>();
   const { scale } = useFontScale();
+  const [search, setSearch] = useState('');
+  const { data: products } = useProducts();
+  const { data: categories } = useProductCategories();
+
+  const query = search.trim().toLowerCase();
+  // ponytail: client-side match over the whole catalog — fine at a few dozen
+  // products, move to a server-side text search once it outgrows one page.
+  const results = query
+    ? (products ?? []).filter((p) => `${p.name} ${p.description ?? ''}`.toLowerCase().includes(query))
+    : [];
+  const categoryName = (id: string) => categories?.find((c) => c.id === id)?.name ?? 'Products';
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <SectionHeader title="Shop" />
-      <View style={styles.banner}>
-        <Text style={[styles.bannerTitle, { fontSize: fontSize.body * scale }]}>Subscribe & save 15%</Text>
-        <Text style={[styles.bannerSubtitle, { fontSize: fontSize.label * scale }]}>On recurring medicines & essentials</Text>
-      </View>
-      <View style={styles.grid}>
-        {MODULES.map((m) => (
-          <ModuleGridTile key={m.key} icon={m.icon} title={m.title} subtitle={m.subtitle} tint={colors.greenTint} onPress={() => navigation.navigate(m.key as any)} />
-        ))}
-      </View>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScreenHeader title="Shop" subtitle="Everyday essentials, delivered" />
+
+      <TextInput
+        style={[styles.search, { fontSize: fontSize.body * scale }]}
+        placeholder="Search medicines, groceries..."
+        placeholderTextColor={colors.inkMuted}
+        value={search}
+        onChangeText={setSearch}
+        returnKeyType="search"
+        accessibilityLabel="Search products"
+      />
+
+      {query ? (
+        results.length ? (
+          results.map((p) => (
+            <ListRow
+              key={p.id}
+              icon="product"
+              tint={colors.greenTint}
+              title={p.name}
+              subtitle={`₹${p.price.toLocaleString('en-IN')}`}
+              onPress={
+                p.category_id
+                  ? () => navigation.navigate('ProductList', { categoryId: p.category_id!, categoryName: categoryName(p.category_id!) })
+                  : undefined
+              }
+            />
+          ))
+        ) : (
+          <Text style={[styles.empty, { fontSize: fontSize.body * scale }]}>No products match "{search.trim()}".</Text>
+        )
+      ) : (
+        <>
+          <HeroBanner
+            accent="green"
+            tone="solid"
+            icon="subscribe"
+            title="Auto-reorder essentials"
+            subtitle="Medicines & staples delivered on a schedule you set"
+            onPress={() => navigation.navigate('Convenience')}
+          />
+          <View style={styles.grid}>
+            {MODULES.map((m) => (
+              <ModuleGridTile
+                key={m.key}
+                icon={m.icon}
+                title={m.title}
+                subtitle={m.subtitle}
+                tint={m.tint}
+                // React Navigation's `navigate` overloads are keyed per literal
+                // screen name; iterating a static config list doesn't narrow.
+                onPress={() => navigation.navigate(m.key as any)}
+              />
+            ))}
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -37,8 +100,16 @@ export function ShopLandingScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.md, paddingBottom: spacing.xl * 2 },
-  banner: { backgroundColor: colors.greenTint, borderRadius: radii.card, padding: spacing.md, marginBottom: spacing.md, gap: 2 },
-  bannerTitle: { color: colors.green, fontWeight: '800' },
-  bannerSubtitle: { color: colors.green },
+  search: {
+    minHeight: minTouchTarget,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.button,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surface,
+    color: colors.ink,
+    marginBottom: spacing.sm,
+  },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  empty: { color: colors.inkMuted, marginTop: spacing.sm },
 });

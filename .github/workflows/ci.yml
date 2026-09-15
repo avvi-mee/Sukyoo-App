@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck both apps
+        run: npm run typecheck
+
+      # Runs every migration into a throwaway Postgres (PGlite, no Docker) and
+      # then attacks it as a hostile authenticated user, plus unit tests for the
+      # Sentry redaction and the session-chunking boundary. A failure here means
+      # a senior's health data is reachable by someone who was never granted it,
+      # or is leaking off-device — treat it as release-blocking, never flaky.
+      - name: Permission-model and redaction tests
+        run: npm test
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks needs history to scan commits, not just the tip.
+          fetch-depth: 0
+
+      # apps/*/.env hold a real Supabase URL and anon key on developer machines
+      # and are gitignored. Nothing catches the first time someone force-adds
+      # one, or pastes a service-role key into a migration — this does.
+      - name: Scan for committed secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      # Advisory, not blocking: a transitive high in a build-time dependency
+      # should not stop a security fix from shipping. Read it, don't ignore it.
+      - name: npm audit (advisory)
+        run: npm audit --audit-level=high || true
+
+      - name: Vulnerability scan (advisory)
+        uses: google/osv-scanner-action/osv-scanner-action@v2.2.2
+        continue-on-error: true
+        with:
+          scan-args: |-
+            --lockfile=package-lock.json

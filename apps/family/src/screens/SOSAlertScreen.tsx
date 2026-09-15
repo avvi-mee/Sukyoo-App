@@ -1,31 +1,35 @@
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRoute, type RouteProp } from '@react-navigation/native';
-import { useAckSosNotification, useProfile } from '@sukyoo/core';
-import { useCurrentUserId } from '../hooks/useCurrentUserId';
+import { useAckSosEvent, useProfile } from '@sukyoo/core';
+import { Icon } from '../components/Icon';
 import { colors, radii, spacing } from '../theme/tokens';
 import type { RootStackParamList } from '../navigation/types';
 
 export function SOSAlertScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'SOSAlert'>>();
-  const familyMemberId = useCurrentUserId();
   const { data: senior } = useProfile(params.seniorId);
-  const ack = useAckSosNotification();
+  const ack = useAckSosEvent();
 
+  // The RPC derives the recipient from the caller's JWT and moves the event
+  // itself off 'triggered' — updating sos_notifications alone (as this did
+  // before) left the senior's screen showing an unanswered alert forever.
   function handleAck() {
-    if (!familyMemberId) return;
-    ack.mutate({ sosEventId: params.sosEventId, recipientId: familyMemberId });
+    ack.mutate(params.sosEventId);
   }
 
   return (
     <View style={styles.screen}>
-      <Text style={styles.siren}>🚨</Text>
+      <View style={styles.siren}>
+        <Icon name="emergency" size={56} color="#fff" strokeWidth={2.5} />
+      </View>
       <Text style={styles.title}>Emergency alert</Text>
       <Text style={styles.subtitle}>{senior?.full_name ?? 'Your family member'} needs help now</Text>
 
       {senior?.phone ? (
-        <Text style={styles.callButton} onPress={() => Linking.openURL(`tel:${senior.phone}`)}>
-          📞 Call {senior.full_name}
-        </Text>
+        <Pressable style={styles.callButton} onPress={() => Linking.openURL(`tel:${senior.phone}`)}>
+          <Icon name="phone" size={20} color={colors.danger} />
+          <Text style={styles.callButtonLabel}>Call {senior.full_name}</Text>
+        </Pressable>
       ) : null}
 
       <Text style={styles.ackButton} onPress={handleAck}>
@@ -37,20 +41,32 @@ export function SOSAlertScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.danger, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, gap: spacing.sm },
-  siren: { fontSize: 64 },
+  // Ringed disc rather than a bare glyph, so the alert reads as deliberate at
+  // a glance from across a room.
+  siren: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    borderWidth: 4,
+    borderColor: 'rgba(255,255,255,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
   title: { fontSize: 28, fontWeight: '800', color: '#fff' },
   subtitle: { fontSize: 16, color: '#fff', textAlign: 'center', marginBottom: spacing.lg },
   callButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
     backgroundColor: '#fff',
-    color: colors.danger,
-    fontWeight: '800',
-    fontSize: 18,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
     borderRadius: radii.button,
-    overflow: 'hidden',
     marginBottom: spacing.sm,
   },
+  callButtonLabel: { color: colors.danger, fontWeight: '800', fontSize: 18 },
   ackButton: {
     color: '#fff',
     fontWeight: '700',

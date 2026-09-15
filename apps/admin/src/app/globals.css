@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+/* Ops staff work on desktops for long shifts, so this is a dense, calm,
+   information-first surface — not the large-type senior palette. The one place
+   colour carries meaning is SOS state, and that always pairs with text. */
+@theme {
+  --color-ink: #101418;
+  --color-ink-muted: #5b6572;
+  --color-surface: #ffffff;
+  --color-canvas: #f6f7f9;
+  --color-line: #e2e6eb;
+  --color-brand: #2b6cd9;
+  --color-brand-tint: #e8f0fc;
+  --color-danger: #c0392b;
+  --color-danger-tint: #fdecea;
+  --color-warn: #b7791f;
+  --color-warn-tint: #fdf6e3;
+  --color-ok: #2f855a;
+  --color-ok-tint: #e8f5ee;
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+/* An unacknowledged SOS should be impossible to scroll past. */
+@keyframes sos-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(192 57 43 / 45%);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgb(192 57 43 / 0%);
+  }
+}
+
+.sos-pulse {
+  animation: sos-pulse 1.6s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sos-pulse {
+    animation: none;
+    outline: 3px solid var(--color-danger);
+  }
+}

@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useAcceptFamilyInvite } from '@sukyoo/core';
+import { ScreenHeader } from '../components/ScreenHeader';
+import { notify } from '../notify';
 import { colors, radii, spacing } from '../theme/tokens';
 
 export function LinkSeniorScreen() {
@@ -9,17 +11,23 @@ export function LinkSeniorScreen() {
 
   function handleSubmit() {
     acceptInvite.mutate(code.trim(), {
-      onError: (e) => Alert.alert('Could not link', e instanceof Error ? e.message : 'Check the code and try again.'),
+      onError: (e) => notify('Could not link', e instanceof Error ? e.message : 'Check the code and try again.'),
     });
   }
 
   return (
-    <View style={styles.center}>
-      <Text style={styles.title}>Link to a family member</Text>
-      <Text style={styles.subtitle}>Ask them to open Sukyoo → HealthHub → Insurance & records → Family access, and share the 6-digit code shown there.</Text>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.center} keyboardShouldPersistTaps="handled">
+      <ScreenHeader title="Link a family member" />
+      {/* The senior generates this from Settings → Family & sharing. Keep the
+          path in sync with the senior app if that screen ever moves. */}
+      <Text style={styles.subtitle}>
+        Ask them to open Sukyoo → Settings → Family &amp; sharing → Invite a family member, and read out the 6-digit code.
+        It stops working after 15 minutes.
+      </Text>
       <TextInput
         style={styles.input}
         placeholder="6-digit code"
+        placeholderTextColor={colors.inkMuted}
         keyboardType="number-pad"
         maxLength={6}
         value={code}
@@ -31,14 +39,19 @@ export function LinkSeniorScreen() {
       >
         {acceptInvite.isPending ? 'Linking...' : 'Link account'}
       </Text>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, backgroundColor: colors.bg },
-  title: { fontSize: 22, fontWeight: '800', color: colors.ink, marginBottom: spacing.xs, textAlign: 'center' },
-  subtitle: { color: colors.inkMuted, marginBottom: spacing.lg, textAlign: 'center' },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  center: { flexGrow: 1, justifyContent: 'center', padding: spacing.lg },
+  subtitle: { color: colors.inkMuted, marginBottom: spacing.lg },
+  // color is required, not cosmetic: without it a TextInput falls back to a
+  // native default that Android's system-wide "force dark" feature can invert
+  // to near-white on top of this white surface — the code becomes invisible as
+  // it's typed even though it's really there. This field matters most: it's
+  // the entire pairing flow.
   input: {
     width: '100%',
     borderWidth: 1,
@@ -46,6 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.button,
     padding: spacing.md,
     backgroundColor: colors.surface,
+    color: colors.ink,
     marginBottom: spacing.sm,
     textAlign: 'center',
     fontSize: 20,

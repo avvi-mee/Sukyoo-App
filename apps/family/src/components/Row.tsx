@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radii, spacing } from '../theme/tokens';
 import { Card } from './Card';
+import { Icon, type IconName } from './Icon';
 
 export function Row({
   icon,
@@ -9,17 +10,23 @@ export function Row({
   actionLabel,
   onPressAction,
   onPress,
+  trailing,
 }: {
-  icon?: string;
+  icon?: IconName;
   title: string;
   subtitle?: string;
   actionLabel?: string;
   onPressAction?: () => void;
   onPress?: () => void;
+  trailing?: React.ReactNode;
 }) {
   const content = (
     <View style={styles.row}>
-      {icon ? <Text style={styles.icon}>{icon}</Text> : null}
+      {icon ? (
+        <View style={styles.iconWrap}>
+          <Icon name={icon} size={20} color={colors.primary} />
+        </View>
+      ) : null}
       <View style={styles.textCol}>
         <Text style={styles.title} numberOfLines={2}>
           {title}
@@ -35,6 +42,7 @@ export function Row({
           <Text style={styles.actionText}>{actionLabel}</Text>
         </Pressable>
       ) : null}
+      {trailing ?? (onPress ? <Icon name="forward" size={18} color={colors.inkMuted} /> : null)}
     </View>
   );
 
@@ -54,7 +62,14 @@ export function Row({
 const styles = StyleSheet.create({
   card: { marginBottom: spacing.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 40 },
-  icon: { fontSize: 20 },
+  iconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.button,
+    backgroundColor: colors.primaryTint,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   textCol: { flex: 1, gap: 2 },
   title: { color: colors.ink, fontWeight: '600', fontSize: 15 },
   subtitle: { color: colors.inkMuted, fontSize: 13 },

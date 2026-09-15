@@ -1,5 +1,5 @@
-import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Icon, type IconName } from '../components/Icon';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SharedRecordsScreen } from '../screens/SharedRecordsScreen';
 import { OrdersScreen } from '../screens/OrdersScreen';
@@ -10,12 +10,12 @@ import type { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const TAB_ICON: Record<keyof MainTabParamList, string> = {
-  Home: '🏠',
-  Health: '🩺',
-  Orders: '🛒',
-  Stories: '🎙️',
-  Settings: '⚙️',
+const TAB_ICON: Record<keyof MainTabParamList, IconName> = {
+  Home: 'home',
+  Health: 'health',
+  Orders: 'orders',
+  Stories: 'story',
+  Settings: 'settings',
 };
 
 export function MainTabsNavigator() {
@@ -25,7 +25,7 @@ export function MainTabsNavigator() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.inkMuted,
-        tabBarIcon: () => <Text style={{ fontSize: 20 }}>{TAB_ICON[route.name as keyof MainTabParamList]}</Text>,
+        tabBarIcon: ({ color }) => <Icon name={TAB_ICON[route.name as keyof MainTabParamList]} size={20} color={color} />,
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />

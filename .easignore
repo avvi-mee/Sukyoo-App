@@ -1,0 +1,48 @@
+# What NOT to upload to EAS Build.
+#
+# When this file exists it REPLACES .gitignore for EAS uploads — it does not
+# add to it. So everything in .gitignore that should still be excluded has to
+# be repeated here, and the one deliberate difference is at the bottom.
+#
+# Why this file exists at all: `.env` is gitignored, and EAS respects
+# .gitignore when uploading. Without this file the build would ship with
+# EXPO_PUBLIC_SUPABASE_URL undefined, packages/core/src/supabaseClient.ts would
+# throw at import, and the APK would crash on launch every single time — with
+# no clue as to why, because the build itself succeeds.
+
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.log
+.DS_Store
+supabase/.temp/
+supabase/.branches/
+
+# Continuous Native Generation: these are OUTPUT. Uploading a stale local
+# prebuild makes EAS use it instead of regenerating from app.config.ts, so a
+# config change would silently not take effect in the build.
+ios/
+android/
+
+# Next.js output for apps/admin, which is not part of a mobile build.
+.next/
+
+# Real credentials. google-services.json is the exception and is handled
+# separately — see docs/BUILDING.md — because push needs it in the build.
+*.p8
+*.p12
+*.keystore
+*.jks
+google-play-service-account.json
+
+# Not needed by a build, and they are the bulk of the repo.
+supabase/tests/
+.github/
+
+# NOTE the deliberate omission: `.env` is NOT listed here, so it IS uploaded.
+# It holds the Supabase URL and the anon key, both of which are public by
+# design — the anon key is embedded in every APK and can be read out of any
+# installed app. Row-level security is what protects the data, not the secrecy
+# of that key. A service-role key must NEVER go in a .env under apps/.

@@ -12,11 +12,16 @@
     "@tanstack/react-query": "^5.101.4",
     "expo": "~57.0.12",
     "expo-audio": "~57.0.3",
+    "expo-build-properties": "~57.0.12",
     "expo-camera": "~57.0.3",
+    "expo-constants": "~57.0.12",
     "expo-dev-client": "~57.0.11",
     "expo-notifications": "~57.0.10",
+    "expo-screen-capture": "~57.0.2",
+    "expo-secure-store": "~57.0.1",
     "expo-status-bar": "~57.0.1",
     "expo-task-manager": "~57.0.9",
+    "lucide-react-native": "^1.31.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.2",
@@ -25,6 +30,7 @@
     "react-native-razorpay": "^3.0.0",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
     "zustand": "^5.0.15"
   },
@@ -36,7 +42,12 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "build:android": "eas build --profile preview --platform android",
+    "build:ios": "eas build --profile preview --platform ios",
+    "release:android": "eas build --profile production --platform android",
+    "submit:android": "eas submit --profile production --platform android"
   },
   "private": true,
   "expo": {

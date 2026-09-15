@@ -25,6 +25,10 @@ TaskManager.defineTask<Notifications.NotificationTaskPayload>(BACKGROUND_NOTIFIC
         pressAction: { id: 'default' },
         fullScreenAction: { id: 'default' },
       },
+      // fullScreenAction and channels are Android-only; without this block an
+      // incoming call on iOS is an ordinary banner. See the family app's copy
+      // for the CallKit/PushKit caveat.
+      ios: { sound: 'default', interruptionLevel: 'timeSensitive' },
     });
   }
 });

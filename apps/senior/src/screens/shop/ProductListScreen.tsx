@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text } from 'react-native';
+import { FlatList, StyleSheet, Text } from 'react-native';
 import { useRoute, type RouteProp } from '@react-navigation/native';
 import RazorpayCheckout from 'react-native-razorpay';
 import { useCreateOrder, useCreateRazorpayOrder, useProducts } from '@sukyoo/core';
 import { ListRow } from '../../components/ListRow';
-import { SectionHeader } from '../../components/SectionHeader';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { useCurrentUserId } from '../../hooks/useCurrentUserId';
+import { notify } from '../../notify';
 import { colors, spacing } from '../../theme/tokens';
 import type { ShopStackParamList } from '../../navigation/types';
 
@@ -31,13 +32,13 @@ export function ProductListScreen() {
         name: 'Sukyoo',
         description: productName,
       });
-      Alert.alert('Payment submitted', "We're confirming it now — you'll see it in your orders shortly.");
+      notify('Payment submitted', "We're confirming it now — you'll see it in your orders shortly.");
     } catch (e: any) {
       if (e?.code !== undefined) {
         // react-native-razorpay's own cancel/error shape — user closed the sheet, not a real failure
-        Alert.alert('Payment not completed', e?.description ?? 'You can try again anytime.');
+        notify('Payment not completed', e?.description ?? 'You can try again anytime.');
       } else {
-        Alert.alert('Could not place order', e instanceof Error ? e.message : 'Try again.');
+        notify('Could not place order', e instanceof Error ? e.message : 'Try again.');
       }
     } finally {
       setBuyingId(null);
@@ -50,11 +51,11 @@ export function ProductListScreen() {
       contentContainerStyle={styles.list}
       data={products ?? []}
       keyExtractor={(item) => item.id}
-      ListHeaderComponent={<SectionHeader title={params.categoryName} />}
+      ListHeaderComponent={<ScreenHeader title={params.categoryName} />}
       ListEmptyComponent={!isLoading ? <Text style={styles.empty}>No products in this category yet.</Text> : null}
       renderItem={({ item }) => (
         <ListRow
-          icon="📦"
+          icon="product"
           title={item.name}
           subtitle={`₹${item.price.toLocaleString('en-IN')}${item.is_subscription_eligible ? ' · subscribe & save available' : ''}`}
           actionLabel={buyingId === item.id ? 'Processing...' : 'Buy now'}

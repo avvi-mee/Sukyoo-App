@@ -15,12 +15,18 @@ export function SettingsScreen() {
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.heading}>Linked family members</Text>
       {seniors.map((s) => (
-        <Row key={s.seniorId} icon="👤" title={s.name} />
+        <Row key={s.seniorId} icon="family" title={s.name} />
       ))}
-      <Row icon="➕" title="Link another family member" onPress={() => navigation.navigate('LinkSenior')} />
+      <Row icon="link" title="Link another family member" onPress={() => navigation.navigate('LinkSenior')} />
 
       <Text style={[styles.heading, styles.spaced]}>Account</Text>
-      <Row icon="🚪" title="Sign out" onPress={() => signOut()} />
+      <Row
+        icon="shield"
+        title="Privacy & your data"
+        subtitle="Notifications, a copy of your information, delete your account"
+        onPress={() => navigation.navigate('Privacy')}
+      />
+      <Row icon="signOut" title="Sign out" onPress={() => signOut()} />
     </ScrollView>
   );
 }

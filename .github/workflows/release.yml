@@ -1,0 +1,163 @@
+name: Release
+
+# Tag-driven, one app at a time:
+#   senior-v1.2.0  → builds and submits the senior app
+#   family-v1.2.0  → builds and submits the family app
+#
+# Two apps in one repo is why the tag carries the app name. A single `v1.2.0`
+# tag would either build both (and burn EAS minutes on an unchanged app) or need
+# a guess about which one moved.
+on:
+  push:
+    tags:
+      - 'senior-v*'
+      - 'family-v*'
+  workflow_dispatch:
+    inputs:
+      app:
+        description: Which app to build
+        required: true
+        type: choice
+        options: [senior, family]
+      profile:
+        description: EAS build profile
+        required: true
+        default: preview
+        type: choice
+        options: [preview, production]
+      submit:
+        description: Submit to the store after building
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # The same gate as CI, repeated here on purpose. A tag can be pushed to a
+  # commit that never opened a pull request, and "the permission tests passed on
+  # main last week" is not a statement about this commit.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Work out which app and profile
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "app=${{ inputs.app }}" >> "$GITHUB_OUTPUT"
+            echo "profile=${{ inputs.profile }}" >> "$GITHUB_OUTPUT"
+            echo "submit=${{ inputs.submit }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=${GITHUB_REF_NAME%%-v*}" >> "$GITHUB_OUTPUT"
+            echo "profile=production" >> "$GITHUB_OUTPUT"
+            echo "submit=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The tag says 1.2.0; app.config.ts says whatever it says. If they
+      # disagree, the store listing and the crash reports disagree too, and
+      # Sentry's release matching silently stops working. Cheaper to fail here.
+      - name: Check the tag matches app.config.ts
+        if: github.event_name == 'push'
+        run: |
+          APP="${{ steps.target.outputs.app }}"
+          TAG_VERSION="${GITHUB_REF_NAME#*-v}"
+          CONFIG_VERSION=$(grep -oP "version: '\K[^']+" "apps/$APP/app.config.ts" | head -1)
+          if [ "$TAG_VERSION" != "$CONFIG_VERSION" ]; then
+            echo "::error::Tag says $TAG_VERSION but apps/$APP/app.config.ts says $CONFIG_VERSION."
+            exit 1
+          fi
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      # google-services.json is a credential and is not in the repo. Without it
+      # FCM push is dead, which means SOS alerts are dead — app.config.ts warns
+      # at prebuild, and this makes a production build fail rather than warn.
+      - name: Restore Firebase credentials
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          APP="${{ steps.target.outputs.app }}"
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" > "apps/$APP/google-services.json"
+          elif [ "${{ steps.target.outputs.profile }}" = "production" ]; then
+            echo "::error::GOOGLE_SERVICES_JSON secret is not set. A production build without it has no push, so no SOS alerts."
+            exit 1
+          else
+            echo "::warning::No google-services.json — push will not work in this build."
+          fi
+
+      - name: Build Android
+        working-directory: apps/${{ steps.target.outputs.app }}
+        run: eas build --platform android --profile ${{ steps.target.outputs.profile }} --non-interactive --no-wait
+
+      # iOS is build-only for now: it must compile, but nothing is submitted to
+      # the App Store until the Apple Developer account and APNs key are in
+      # place. Failing the job on an iOS compile error is the point.
+      - name: Build iOS
+        working-directory: apps/${{ steps.target.outputs.app }}
+        run: eas build --platform ios --profile ${{ steps.target.outputs.profile }} --non-interactive --no-wait
+
+  submit:
+    needs: build
+    if: github.event_name == 'push' || inputs.submit
+    runs-on: ubuntu-latest
+    # A human names the environment's reviewers in repo settings. Uploading to
+    # Play — even to the internal track — is the first irreversible step, so it
+    # gets an approval gate rather than happening because a tag was pushed.
+    environment: play-internal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+
+      - name: Work out which app
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "app=${{ inputs.app }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=${GITHUB_REF_NAME%%-v*}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore Play service account
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          APP="${{ steps.target.outputs.app }}"
+          echo "$PLAY_SERVICE_ACCOUNT_JSON" > "apps/$APP/google-play-service-account.json"
+
+      # Goes to the INTERNAL track (eas.json), never straight to production.
+      # Promotion to a staged rollout is a deliberate click in Play Console —
+      # see GO_LIVE.md for the percentages and the rollback.
+      - name: Submit to Play internal track
+        working-directory: apps/${{ steps.target.outputs.app }}
+        run: eas submit --platform android --profile production --non-interactive

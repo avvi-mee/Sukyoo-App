@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, minTouchTarget, radii, spacing } from '../theme/tokens';
 import { useFontScale } from '../theme/FontScaleContext';
+import { Icon } from './Icon';
 
 // The medication dose row: tap the circle to mark taken. Large hit target,
 // state conveyed by both fill color and the checkmark glyph, not fill alone.
@@ -29,7 +30,11 @@ export function ChecklistRow({
         onPress={onCheck}
         style={[styles.checkbox, checked && styles.checkboxChecked]}
       >
-        {busy ? <ActivityIndicator size="small" color={colors.coral} /> : checked ? <Text style={styles.check}>✓</Text> : null}
+        {busy ? (
+          <ActivityIndicator size="small" color={colors.coral} />
+        ) : checked ? (
+          <Icon name="check" size={22} color={colors.statusNormal} strokeWidth={3} />
+        ) : null}
       </Pressable>
       <View style={styles.textCol}>
         <Text style={[styles.title, { fontSize: fontSize.body * scale }, checked && styles.titleChecked]}>{title}</Text>

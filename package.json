@@ -7,9 +7,24 @@
   ],
   "scripts": {
     "senior": "npm run start --workspace apps/senior",
-    "family": "npm run start --workspace apps/family"
+    "family": "npm run start --workspace apps/family",
+    "test": "node --test supabase/tests/*.test.mjs",
+    "typecheck": "npm run typecheck --workspace apps/senior && npm run typecheck --workspace apps/family && npm run typecheck --workspace apps/admin",
+    "build:senior:android": "npm run build:android --workspace apps/senior",
+    "build:senior:ios": "npm run build:ios --workspace apps/senior",
+    "build:family:android": "npm run build:android --workspace apps/family",
+    "build:family:ios": "npm run build:ios --workspace apps/family",
+    "release:senior:android": "npm run release:android --workspace apps/senior",
+    "release:family:android": "npm run release:android --workspace apps/family",
+    "submit:senior:android": "npm run submit:android --workspace apps/senior",
+    "submit:family:android": "npm run submit:android --workspace apps/family",
+    "admin": "npm run dev --workspace apps/admin",
+    "build:admin": "npm run build --workspace apps/admin"
   },
   "allowScripts": {
     "@sentry/cli@2.58.4": true
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.5"
   }
 }

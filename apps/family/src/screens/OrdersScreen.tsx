@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 import RazorpayCheckout from 'react-native-razorpay';
 import { useCreateOrder, useCreateRazorpayOrder, useProducts } from '@sukyoo/core';
 import { Row } from '../components/Row';
 import { useActiveSenior } from '../state/ActiveSeniorContext';
+import { notify } from '../notify';
 import { colors, spacing } from '../theme/tokens';
 
 // Family co-ordering: buy something for the active senior, paid for by the
@@ -31,14 +32,14 @@ export function OrdersScreen() {
         name: 'Sukyoo',
         description: `${productName} for ${activeSenior.name}`,
       });
-      Alert.alert('Gift sent', `We're confirming your order for ${activeSenior.name} now.`);
+      notify('Gift sent', `We're confirming your order for ${activeSenior.name} now.`);
     } catch (e: any) {
       if (e?.message === 'not authorized') {
-        Alert.alert('Not shared yet', `Ask ${activeSenior.name} to invite you and enable family co-ordering first.`);
+        notify('Not shared yet', `Ask ${activeSenior.name} to invite you and enable family co-ordering first.`);
       } else if (e?.code === undefined) {
-        Alert.alert('Could not place order', e instanceof Error ? e.message : 'Try again.');
+        notify('Could not place order', e instanceof Error ? e.message : 'Try again.');
       } else {
-        Alert.alert('Payment not completed', e?.description ?? 'You can try again anytime.');
+        notify('Payment not completed', e?.description ?? 'You can try again anytime.');
       }
     } finally {
       setBuyingId(null);
@@ -59,7 +60,7 @@ export function OrdersScreen() {
       {(products ?? []).map((p) => (
         <Row
           key={p.id}
-          icon="📦"
+          icon="product"
           title={p.name}
           subtitle={`₹${p.price.toLocaleString('en-IN')}`}
           actionLabel={buyingId === p.id ? 'Processing...' : 'Gift'}

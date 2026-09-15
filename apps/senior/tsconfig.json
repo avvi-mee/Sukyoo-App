@@ -2,5 +2,11 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  // app.config.ts runs under Node at build time, not in the React Native
+  // runtime. Typechecking it here would mean pulling @types/node into the app,
+  // which puts `process`, `Buffer` etc. into scope for RN source where they
+  // don't exist — masking real errors. Expo validates it on load instead
+  // (`npx expo config --type public`).
+  "exclude": ["app.config.ts", "plugins/**"]
 }

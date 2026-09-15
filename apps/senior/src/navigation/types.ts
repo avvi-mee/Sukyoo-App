@@ -36,6 +36,7 @@ export type FunStackParamList = {
   InteractiveSocial: undefined;
   LearningHobbies: undefined;
   Community: undefined;
+  Livestreams: undefined;
   LifeStoryRecorder: undefined;
 };
 
@@ -50,6 +51,12 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   Auth: undefined;
   MainTabs: undefined;
+  // Pushed above the tabs rather than living inside one: both are reachable
+  // from several places (Home header, the Insurance screen, Trust & ease) and
+  // neither belongs to a single vertical.
+  Settings: undefined;
+  FamilySharing: undefined;
+  Privacy: undefined;
   VideoCall:
     | { mode: 'start'; calleeId: string; calleeName: string }
     | { mode: 'answer'; callSessionId: string; callerName?: string };

@@ -5,6 +5,7 @@ import { Card } from '../components/Card';
 import { Row } from '../components/Row';
 import { useActiveSenior } from '../state/ActiveSeniorContext';
 import { colors, spacing } from '../theme/tokens';
+import { useProtectedScreen } from '../hooks/useProtectedScreen';
 
 function NotSharedNotice({ query, name, what }: { query: UseQueryResult<unknown, unknown>; name: string; what: string }) {
   if (!query.isError) return null;
@@ -16,6 +17,10 @@ function NotSharedNotice({ query, name, what }: { query: UseQueryResult<unknown,
 }
 
 export function SharedRecordsScreen() {
+  // Health and life-story data: block screenshots, screen recording and the
+  // app-switcher snapshot while this screen is focused.
+  useProtectedScreen('SharedRecordsScreen');
+
   const { activeSenior } = useActiveSenior();
   const seniorId = activeSenior?.seniorId;
   const name = activeSenior?.name ?? 'This person';
@@ -42,22 +47,22 @@ export function SharedRecordsScreen() {
 
       <NotSharedNotice query={vitals} name={name} what="vitals" />
       {(vitals.data ?? []).slice(0, 3).map((v) => (
-        <Row key={v.id} icon="🩸" title={v.vital_type.replace(/_/g, ' ')} subtitle={`${v.status ?? '—'} · ${new Date(v.recorded_at).toLocaleDateString()}`} />
+        <Row key={v.id} icon="vitals" title={v.vital_type.replace(/_/g, ' ')} subtitle={`${v.status ?? '—'} · ${new Date(v.recorded_at).toLocaleDateString()}`} />
       ))}
 
       <NotSharedNotice query={medications} name={name} what="medications" />
       {medications.data?.length ? (
-        <Row icon="💊" title="Medication adherence today" subtitle={`${takenCount} of ${doseLogs.data?.length ?? 0} doses taken`} />
+        <Row icon="medication" title="Medication adherence today" subtitle={`${takenCount} of ${doseLogs.data?.length ?? 0} doses taken`} />
       ) : null}
 
       <NotSharedNotice query={records} name={name} what="health records" />
       {(records.data ?? []).slice(0, 3).map((r) => (
-        <Row key={r.id} icon="📄" title={r.record_type.replace(/_/g, ' ')} subtitle={new Date(r.created_at).toLocaleDateString()} />
+        <Row key={r.id} icon="record" title={r.record_type.replace(/_/g, ' ')} subtitle={new Date(r.created_at).toLocaleDateString()} />
       ))}
 
       <NotSharedNotice query={claims} name={name} what="insurance claims" />
       {(claims.data ?? []).slice(0, 3).map((c) => (
-        <Row key={c.id} icon="📋" title={c.claim_type ?? 'Claim'} subtitle={c.status.replace(/_/g, ' ')} />
+        <Row key={c.id} icon="claim" title={c.claim_type ?? 'Claim'} subtitle={c.status.replace(/_/g, ' ')} />
       ))}
     </ScrollView>
   );

@@ -7,10 +7,11 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { queryClient, useSession } from '@sukyoo/core';
 import { FontScaleProvider } from './src/theme/FontScaleContext';
-import { PhoneSignInScreen } from './src/screens/auth/PhoneSignInScreen';
+import { EmailSignInScreen } from './src/screens/auth/EmailSignInScreen';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { navigationRef } from './src/navigation/navigationRef';
 import { CallCareButton } from './src/components/CallCareButton';
+import { ReleaseGate } from './src/components/ReleaseGate';
 import { usePushTokenRegistration } from './src/notifications/usePushTokenRegistration';
 import { useNotifeeNavigation } from './src/notifications/useNotifeeNavigation';
 import { registerBackgroundNotificationTask } from './src/notifications/backgroundTask';
@@ -35,7 +36,7 @@ function AppShell() {
     );
   }
 
-  if (!session) return <PhoneSignInScreen />;
+  if (!session) return <EmailSignInScreen />;
 
   return (
     <View style={styles.fill}>
@@ -53,7 +54,11 @@ function App() {
           <FontScaleProvider>
             <NavigationContainer ref={navigationRef}>
               <StatusBar style="auto" />
-              <AppShell />
+              {/* Above AppShell, so it applies BEFORE sign-in — the case that
+                  matters most is when the broken thing is sign-in itself. */}
+              <ReleaseGate>
+                <AppShell />
+              </ReleaseGate>
             </NavigationContainer>
           </FontScaleProvider>
         </QueryClientProvider>

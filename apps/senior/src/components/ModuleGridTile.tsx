@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, minTouchTarget, radii, spacing } from '../theme/tokens';
 import { useFontScale } from '../theme/FontScaleContext';
+import { Icon, glyphColorFor, type IconName } from './Icon';
 
 // The repeated "icon + title + subtitle" grid tile used by every vertical's
 // landing screen (HealthHub's 7-module grid, Ecommerce/Events/Fun's 2x2s).
@@ -11,7 +12,7 @@ export function ModuleGridTile({
   tint = colors.coralTint,
   onPress,
 }: {
-  icon: string;
+  icon: IconName;
   title: string;
   subtitle?: string;
   tint?: string;
@@ -27,7 +28,7 @@ export function ModuleGridTile({
       style={({ pressed }) => [styles.tile, { opacity: pressed ? 0.85 : 1 }]}
     >
       <View style={[styles.iconWrap, { backgroundColor: tint }]}>
-        <Text style={{ fontSize: 28 * scale }}>{icon}</Text>
+        <Icon name={icon} size={24 * scale} color={glyphColorFor(tint)} />
       </View>
       <Text style={[styles.title, { fontSize: fontSize.label * scale }]} numberOfLines={2}>
         {title}

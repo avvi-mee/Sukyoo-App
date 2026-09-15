@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, minTouchTarget, radii, spacing } from '../theme/tokens';
 import { useFontScale } from '../theme/FontScaleContext';
 import { BigButton } from './BigButton';
+import { Icon, glyphColorFor, type IconName } from './Icon';
 
 // The repeated "leading icon chip + title/subtitle + trailing action" row
 // used for doctor cards, medication rows, event listings, etc.
@@ -13,14 +14,18 @@ export function ListRow({
   actionLabel,
   onPressAction,
   onPress,
+  trailing,
 }: {
-  icon?: string;
+  icon?: IconName;
   title: string;
   subtitle?: string;
+  /** Background of the icon chip. The glyph is tinted to match. */
   tint?: string;
   actionLabel?: string;
   onPressAction?: () => void;
   onPress?: () => void;
+  /** Rendered at the end of the row — a status chip, a chevron, a toggle. */
+  trailing?: React.ReactNode;
 }) {
   const { scale } = useFontScale();
 
@@ -28,7 +33,7 @@ export function ListRow({
     <View style={styles.row}>
       {icon ? (
         <View style={[styles.iconWrap, { backgroundColor: tint }]}>
-          <Text style={{ fontSize: 22 * scale }}>{icon}</Text>
+          <Icon name={icon} size={22 * scale} color={glyphColorFor(tint)} />
         </View>
       ) : null}
       <View style={styles.textCol}>
@@ -44,6 +49,7 @@ export function ListRow({
       {actionLabel && onPressAction ? (
         <BigButton label={actionLabel} onPress={onPressAction} style={styles.action} />
       ) : null}
+      {trailing}
     </View>
   );
 

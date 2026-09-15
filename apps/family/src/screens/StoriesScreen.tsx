@@ -5,6 +5,7 @@ import { supabase, useSharedLifeStoryEntries } from '@sukyoo/core';
 import { Row } from '../components/Row';
 import { useActiveSenior } from '../state/ActiveSeniorContext';
 import { colors, spacing } from '../theme/tokens';
+import { useProtectedScreen } from '../hooks/useProtectedScreen';
 
 type StoryEntry = { id: string; title: string; storage_path: string | null };
 
@@ -28,7 +29,7 @@ function NowPlaying({ entry }: { entry: StoryEntry }) {
 
   return (
     <Row
-      icon={status.playing ? '⏸️' : '▶️'}
+      icon={status.playing ? 'pause' : 'play'}
       title={`Now playing: ${entry.title}`}
       subtitle={status.playing ? 'Playing...' : 'Paused'}
       onPress={() => (status.playing ? player.pause() : player.play())}
@@ -37,6 +38,10 @@ function NowPlaying({ entry }: { entry: StoryEntry }) {
 }
 
 export function StoriesScreen() {
+  // Health and life-story data: block screenshots, screen recording and the
+  // app-switcher snapshot while this screen is focused.
+  useProtectedScreen('StoriesScreen');
+
   const { activeSenior } = useActiveSenior();
   const { data: entries, isError } = useSharedLifeStoryEntries(activeSenior?.seniorId);
   const [nowPlaying, setNowPlaying] = useState<StoryEntry | null>(null);
@@ -64,7 +69,7 @@ export function StoriesScreen() {
       {(entries ?? [])
         .filter((e) => e.id !== nowPlaying?.id)
         .map((e) => (
-          <Row key={e.id} icon="🎙️" title={e.title} subtitle={new Date(e.created_at).toLocaleDateString()} onPress={() => setNowPlaying(e)} />
+          <Row key={e.id} icon="story" title={e.title} subtitle={new Date(e.created_at).toLocaleDateString()} onPress={() => setNowPlaying(e)} />
         ))}
       {!entries?.length ? <Text style={styles.empty}>No stories shared yet.</Text> : null}
     </ScrollView>

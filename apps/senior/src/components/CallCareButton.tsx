@@ -1,4 +1,5 @@
-import { Linking, Pressable, StyleSheet, Text } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Icon } from './Icon';
 import { colors, fontSize, radii, spacing } from '../theme/tokens';
 import { useFontScale } from '../theme/FontScaleContext';
 
@@ -15,7 +16,9 @@ export function CallCareButton() {
       onPress={() => Linking.openURL(CARE_LINE)}
       style={({ pressed }) => [styles.pill, { opacity: pressed ? 0.85 : 1 }]}
     >
-      <Text style={{ fontSize: 18 }}>📞</Text>
+      <View style={styles.iconCircle}>
+        <Icon name="phone" size={16} color="#fff" />
+      </View>
       <Text style={[styles.label, { fontSize: fontSize.label * scale }]}>Call Sukyoo care</Text>
     </Pressable>
   );
@@ -31,13 +34,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    paddingLeft: spacing.xs,
+    paddingRight: spacing.md,
     elevation: 4,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
   },
-  label: { color: colors.green, fontWeight: '700' },
+  // The mockup puts the handset in a filled green disc against the dark pill.
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.green,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  label: { color: '#fff', fontWeight: '700' },
 });
