@@ -31,16 +31,16 @@ export default async function SeniorHomePage() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold">Hello{profile.fullName ? `, ${profile.fullName}` : ''}</h1>
-      <p className="mt-1 text-[--color-ink-muted]">Good to see you.</p>
+      <p className="mt-1 text-(--color-ink-muted)">Good to see you.</p>
 
       {upcoming ? (
-        <div className="mt-6 rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
-          <p className="text-sm font-semibold text-[--color-coral]">Upcoming appointment</p>
+        <div className="mt-6 rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
+          <p className="text-sm font-semibold text-(--color-coral)">Upcoming appointment</p>
           <p className="mt-1 text-lg font-bold">
             {upcoming.slot?.doctor?.profile?.full_name ?? 'Your doctor'} —{' '}
             {upcoming.slot ? new Date(upcoming.slot.start_at).toLocaleString([], { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : ''}
           </p>
-          <p className="mt-0.5 text-sm text-[--color-ink-muted] capitalize">{upcoming.slot?.mode.replace('_', ' ')}</p>
+          <p className="mt-0.5 text-sm text-(--color-ink-muted) capitalize">{upcoming.slot?.mode.replace('_', ' ')}</p>
         </div>
       ) : null}
 
@@ -55,7 +55,7 @@ export default async function SeniorHomePage() {
             <p className="text-xl font-extrabold" style={{ color: `var(${tile.color})` }}>
               {tile.label}
             </p>
-            <p className="mt-1 text-sm text-[--color-ink-muted]">{tile.hint}</p>
+            <p className="mt-1 text-sm text-(--color-ink-muted)">{tile.hint}</p>
           </Link>
         ))}
       </div>

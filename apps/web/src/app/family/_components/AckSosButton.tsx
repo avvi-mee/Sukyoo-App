@@ -24,7 +24,7 @@ export function AckSosButton({ sosEventId }: { sosEventId: string }) {
       type="button"
       onClick={handleAck}
       disabled={busy}
-      className="rounded-md bg-white px-3 py-1.5 text-sm font-bold text-[--color-red] disabled:opacity-50"
+      className="rounded-md bg-white px-3 py-1.5 text-sm font-bold text-(--color-red) disabled:opacity-50"
     >
       {busy ? 'Marking…' : "I've seen this"}
     </button>

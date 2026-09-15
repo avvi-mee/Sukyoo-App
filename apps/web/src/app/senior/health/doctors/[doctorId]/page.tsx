@@ -22,21 +22,21 @@ export default async function DoctorSlotsPage({ params }: { params: Promise<{ do
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold">{doctor?.profile?.full_name ?? 'Doctor'}</h1>
-      <p className="mt-1 text-[--color-ink-muted]">{doctor?.specialty ?? 'General physician'}</p>
+      <p className="mt-1 text-(--color-ink-muted)">{doctor?.specialty ?? 'General physician'}</p>
 
       <div className="mt-4 space-y-2">
         {(slots ?? []).map((s) => (
-          <div key={s.id} className="flex items-center justify-between rounded-xl border border-[--color-line] bg-[--color-surface] p-4">
+          <div key={s.id} className="flex items-center justify-between rounded-xl border border-(--color-line) bg-(--color-surface) p-4">
             <div>
               <p className="font-semibold">
                 {new Date(s.start_at).toLocaleString([], { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
               </p>
-              <p className="text-sm capitalize text-[--color-ink-muted]">{s.mode.replace('_', ' ')}</p>
+              <p className="text-sm capitalize text-(--color-ink-muted)">{s.mode.replace('_', ' ')}</p>
             </div>
             <BookSlotButton slotId={s.id} userId={profile.id} mode={s.mode} />
           </div>
         ))}
-        {!slots?.length ? <p className="text-sm text-[--color-ink-muted]">No upcoming slots — check back soon.</p> : null}
+        {!slots?.length ? <p className="text-sm text-(--color-ink-muted)">No upcoming slots — check back soon.</p> : null}
       </div>
     </div>
   );

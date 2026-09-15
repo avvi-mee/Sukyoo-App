@@ -20,7 +20,7 @@ export default async function FamilyStoriesPage({ searchParams }: { searchParams
   const selected = seniors.find((s) => s.seniorId === seniorParam) ?? seniors[0];
 
   if (!selected) {
-    return <p className="text-sm text-[--color-ink-muted]">Link a senior first to hear their stories.</p>;
+    return <p className="text-sm text-(--color-ink-muted)">Link a senior first to hear their stories.</p>;
   }
 
   const supabase = await createClient();
@@ -47,19 +47,19 @@ export default async function FamilyStoriesPage({ searchParams }: { searchParams
       <SeniorSwitcher seniors={seniors} selectedId={selected.seniorId} basePath="/family/stories" />
 
       {notShared ? (
-        <p className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-6 text-sm text-[--color-ink-muted]">
+        <p className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-6 text-sm text-(--color-ink-muted)">
           Not shared with you yet.
         </p>
       ) : entries.length === 0 ? (
-        <p className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-6 text-sm text-[--color-ink-muted]">
+        <p className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-6 text-sm text-(--color-ink-muted)">
           No stories recorded yet.
         </p>
       ) : (
         <div className="space-y-4">
           {entries.map((entry) => (
-            <div key={entry.id} className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+            <div key={entry.id} className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
               <p className="font-bold">{entry.title}</p>
-              <p className="text-xs text-[--color-ink-muted]">{new Date(entry.created_at).toLocaleDateString()}</p>
+              <p className="text-xs text-(--color-ink-muted)">{new Date(entry.created_at).toLocaleDateString()}</p>
               {entry.body_text ? <p className="mt-2 text-sm">{entry.body_text}</p> : null}
               {entry.signedUrl ? (
                 <audio controls src={entry.signedUrl} className="mt-3 w-full">

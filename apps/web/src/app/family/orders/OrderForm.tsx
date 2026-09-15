@@ -41,17 +41,17 @@ export function OrderForm({ seniorId, seniorName, products }: { seniorId: string
 
   return (
     <div className="space-y-4">
-      {error ? <p className="rounded-md bg-[--color-red-tint] px-3 py-2 text-sm text-[--color-red]">{error}</p> : null}
+      {error ? <p className="rounded-md bg-(--color-red-tint) px-3 py-2 text-sm text-(--color-red)">{error}</p> : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         {products.map((product) => (
-          <div key={product.id} className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+          <div key={product.id} className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
             {product.image_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={product.image_url} alt="" className="mb-3 h-32 w-full rounded-lg object-cover" />
             ) : null}
             <p className="font-bold">{product.name}</p>
-            <p className="text-sm text-[--color-ink-muted]">₹{product.price}</p>
+            <p className="text-sm text-(--color-ink-muted)">₹{product.price}</p>
 
             <div className="mt-3 flex items-center gap-2">
               <input
@@ -59,20 +59,20 @@ export function OrderForm({ seniorId, seniorName, products }: { seniorId: string
                 min={1}
                 value={quantities[product.id] ?? 1}
                 onChange={(e) => setQuantities((q) => ({ ...q, [product.id]: Math.max(1, Number(e.target.value)) }))}
-                className="w-16 rounded-md border border-[--color-line] px-2 py-1.5 text-sm"
+                className="w-16 rounded-md border border-(--color-line) px-2 py-1.5 text-sm"
               />
               <button
                 type="button"
                 onClick={() => handleSend(product.id)}
                 disabled={busy === product.id}
-                className="flex-1 rounded-md bg-[--color-green] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                className="flex-1 rounded-md bg-(--color-green) px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
               >
                 {busy === product.id ? 'Sending…' : 'Send this'}
               </button>
             </div>
 
             {placed === product.id ? (
-              <p className="mt-2 text-xs font-semibold text-[--color-green]">
+              <p className="mt-2 text-xs font-semibold text-(--color-green)">
                 Order placed — payment happens in the Sukyoo app for now.
               </p>
             ) : null}

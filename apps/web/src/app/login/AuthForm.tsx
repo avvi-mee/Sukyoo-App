@@ -44,9 +44,9 @@ export function AuthForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm rounded-2xl border border-[--color-line] bg-[--color-surface] p-7">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm rounded-2xl border border-(--color-line) bg-(--color-surface) p-7">
         <h1 className="text-xl font-extrabold">Sukyoo</h1>
-        <p className="mt-1 text-sm text-[--color-ink-muted]">
+        <p className="mt-1 text-sm text-(--color-ink-muted)">
           {mode === 'signUp' ? 'Create your account' : 'Sign in to your account'}
         </p>
 
@@ -60,7 +60,7 @@ export function AuthForm() {
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="mt-1 w-full rounded-md border border-[--color-line] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-(--color-line) px-3 py-2 text-sm"
             />
 
             <span className="mt-4 block text-sm font-medium">I am</span>
@@ -69,7 +69,7 @@ export function AuthForm() {
                 type="button"
                 onClick={() => setRole('senior')}
                 className={`rounded-md border px-3 py-2 text-sm font-semibold ${
-                  role === 'senior' ? 'border-[--color-coral] bg-[--color-coral-tint] text-[--color-coral]' : 'border-[--color-line]'
+                  role === 'senior' ? 'border-(--color-coral) bg-(--color-coral-tint) text-(--color-coral)' : 'border-(--color-line)'
                 }`}
               >
                 A senior
@@ -78,7 +78,7 @@ export function AuthForm() {
                 type="button"
                 onClick={() => setRole('family')}
                 className={`rounded-md border px-3 py-2 text-sm font-semibold ${
-                  role === 'family' ? 'border-[--color-coral] bg-[--color-coral-tint] text-[--color-coral]' : 'border-[--color-line]'
+                  role === 'family' ? 'border-(--color-coral) bg-(--color-coral-tint) text-(--color-coral)' : 'border-(--color-line)'
                 }`}
               >
                 Family member
@@ -97,7 +97,7 @@ export function AuthForm() {
           autoComplete="username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded-md border border-[--color-line] px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-(--color-line) px-3 py-2 text-sm"
         />
 
         <label className="mt-4 block text-sm font-medium" htmlFor="password">
@@ -110,11 +110,11 @@ export function AuthForm() {
           autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 w-full rounded-md border border-[--color-line] px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-(--color-line) px-3 py-2 text-sm"
         />
 
         {error ? (
-          <p role="alert" className="mt-4 rounded-md bg-[--color-red-tint] px-3 py-2 text-sm text-[--color-red]">
+          <p role="alert" className="mt-4 rounded-md bg-(--color-red-tint) px-3 py-2 text-sm text-(--color-red)">
             {error}
           </p>
         ) : null}
@@ -122,7 +122,7 @@ export function AuthForm() {
         <button
           type="submit"
           disabled={busy || !email || !password || (mode === 'signUp' && !fullName)}
-          className="mt-6 w-full rounded-md bg-[--color-coral] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          className="mt-6 w-full rounded-md bg-(--color-coral) px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
         >
           {busy ? 'Please wait…' : mode === 'signUp' ? 'Create account' : 'Sign in'}
         </button>
@@ -133,7 +133,7 @@ export function AuthForm() {
             setMode(mode === 'signUp' ? 'signIn' : 'signUp');
             setError(null);
           }}
-          className="mt-4 w-full text-center text-sm font-semibold text-[--color-coral]"
+          className="mt-4 w-full text-center text-sm font-semibold text-(--color-coral)"
         >
           {mode === 'signUp' ? 'Already have an account? Sign in' : 'New here? Create an account'}
         </button>

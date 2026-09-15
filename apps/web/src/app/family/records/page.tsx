@@ -19,18 +19,18 @@ async function fetchShared(rpc: SharedRpc, ownerId: string) {
 
 function Section({ title, result }: { title: string; result: { rows: Row[] | null; shared: boolean; failed?: boolean } }) {
   return (
-    <div className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+    <div className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
       <h2 className="font-bold">{title}</h2>
       {!result.shared ? (
-        <p className="mt-2 text-sm text-[--color-ink-muted]">Not shared with you yet.</p>
+        <p className="mt-2 text-sm text-(--color-ink-muted)">Not shared with you yet.</p>
       ) : result.failed ? (
-        <p className="mt-2 text-sm text-[--color-ink-muted]">Couldn&apos;t load this right now.</p>
+        <p className="mt-2 text-sm text-(--color-ink-muted)">Couldn&apos;t load this right now.</p>
       ) : result.rows!.length === 0 ? (
-        <p className="mt-2 text-sm text-[--color-ink-muted]">Nothing here yet.</p>
+        <p className="mt-2 text-sm text-(--color-ink-muted)">Nothing here yet.</p>
       ) : (
         <ul className="mt-2 space-y-2 text-sm">
           {result.rows!.map((row, i) => (
-            <li key={(row.id as string) ?? i} className="rounded-lg bg-[--color-bg] px-3 py-2">
+            <li key={(row.id as string) ?? i} className="rounded-lg bg-(--color-bg) px-3 py-2">
               {Object.entries(row)
                 .filter(([k]) => !['id', 'owner_id'].includes(k))
                 .map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`)
@@ -54,7 +54,7 @@ export default async function SharedRecordsPage({
   const selected = seniors.find((s) => s.seniorId === seniorParam) ?? seniors[0];
 
   if (!selected) {
-    return <p className="text-sm text-[--color-ink-muted]">Link a senior first to see shared records here.</p>;
+    return <p className="text-sm text-(--color-ink-muted)">Link a senior first to see shared records here.</p>;
   }
 
   const [vitals, medications, healthRecords, insuranceClaims] = await Promise.all([

@@ -22,7 +22,7 @@ export function RevokeLinkButton({ linkId, seniorName }: { linkId: string; senio
       type="button"
       onClick={handleRevoke}
       disabled={busy}
-      className="rounded-md border border-[--color-red] px-3 py-1.5 text-sm font-semibold text-[--color-red] disabled:opacity-50"
+      className="rounded-md border border-(--color-red) px-3 py-1.5 text-sm font-semibold text-(--color-red) disabled:opacity-50"
     >
       {busy ? 'Revoking…' : 'Revoke link'}
     </button>

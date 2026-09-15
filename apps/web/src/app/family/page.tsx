@@ -35,7 +35,7 @@ export default async function FamilyHomePage() {
       <h1 className="text-xl font-extrabold">Hello, {profile.fullName ?? 'there'}</h1>
 
       {hasActive ? (
-        <div className="sos-pulse space-y-3 rounded-2xl bg-[--color-red] p-5 text-white">
+        <div className="sos-pulse space-y-3 rounded-2xl bg-(--color-red) p-5 text-white">
           <div className="flex items-center justify-between gap-3">
             <p className="text-lg font-extrabold">Emergency SOS active</p>
             <SosAlarm active={hasActive} />
@@ -52,9 +52,9 @@ export default async function FamilyHomePage() {
       ) : null}
 
       {(links ?? []).length === 0 ? (
-        <p className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-6 text-sm text-[--color-ink-muted]">
+        <p className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-6 text-sm text-(--color-ink-muted)">
           Not linked to anyone yet —{' '}
-          <Link href="/family/link-senior" className="font-semibold text-[--color-coral]">
+          <Link href="/family/link-senior" className="font-semibold text-(--color-coral)">
             link a senior
           </Link>{' '}
           to get started.
@@ -62,10 +62,10 @@ export default async function FamilyHomePage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {(links ?? []).map((link) => (
-            <div key={link.id} className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+            <div key={link.id} className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
               <p className="text-base font-bold">{link.senior?.full_name ?? 'Family member'}</p>
-              {link.senior?.phone ? <p className="text-sm text-[--color-ink-muted]">{link.senior.phone}</p> : null}
-              <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-[--color-coral]">
+              {link.senior?.phone ? <p className="text-sm text-(--color-ink-muted)">{link.senior.phone}</p> : null}
+              <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-(--color-coral)">
                 <Link href={`/family/records?senior=${link.senior_id}`}>Shared records</Link>
                 <Link href={`/family/orders?senior=${link.senior_id}`}>Send something</Link>
                 <Link href={`/family/stories?senior=${link.senior_id}`}>Stories</Link>

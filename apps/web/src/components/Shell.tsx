@@ -13,10 +13,10 @@ export function Shell({
 }) {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="shrink-0 border-b border-[--color-line] bg-[--color-surface] md:w-56 md:border-b-0 md:border-r">
-        <div className="border-b border-[--color-line] px-5 py-4 md:border-b-0">
+      <aside className="shrink-0 border-b border-(--color-line) bg-(--color-surface) md:w-56 md:border-b-0 md:border-r">
+        <div className="border-b border-(--color-line) px-5 py-4 md:border-b-0">
           <Link href="/" className="text-base font-extrabold tracking-tight">
-            Sukyoo <span className="text-[--color-ink-muted]">{brand}</span>
+            Sukyoo <span className="text-(--color-ink-muted)">{brand}</span>
           </Link>
         </div>
 
@@ -25,17 +25,17 @@ export function Shell({
             <Link
               key={item.href}
               href={item.href}
-              className="block whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-[--color-ink] hover:bg-[--color-coral-tint] hover:text-[--color-coral]"
+              className="block whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-(--color-ink) hover:bg-(--color-coral-tint) hover:text-(--color-coral)"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden border-t border-[--color-line] p-4 text-xs text-[--color-ink-muted] md:block">
-          {displayName ? <p className="truncate font-medium text-[--color-ink]">{displayName}</p> : null}
+        <div className="hidden border-t border-(--color-line) p-4 text-xs text-(--color-ink-muted) md:block">
+          {displayName ? <p className="truncate font-medium text-(--color-ink)">{displayName}</p> : null}
           <form action="/auth/signout" method="post" className="mt-2">
-            <button type="submit" className="text-[--color-coral] underline">
+            <button type="submit" className="text-(--color-coral) underline">
               Sign out
             </button>
           </form>

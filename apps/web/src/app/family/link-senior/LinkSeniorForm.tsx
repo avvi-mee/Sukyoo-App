@@ -42,9 +42,9 @@ export function LinkSeniorForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm rounded-2xl border border-[--color-line] bg-[--color-surface] p-7">
+    <form onSubmit={handleSubmit} className="max-w-sm rounded-2xl border border-(--color-line) bg-(--color-surface) p-7">
       <h1 className="text-lg font-bold">Link a senior</h1>
-      <p className="mt-1 text-sm text-[--color-ink-muted]">
+      <p className="mt-1 text-sm text-(--color-ink-muted)">
         Ask them to open Settings → Family &amp; sharing in their Sukyoo app and generate a code.
       </p>
 
@@ -57,12 +57,12 @@ export function LinkSeniorForm() {
         autoCapitalize="characters"
         value={code}
         onChange={(e) => setCode(e.target.value.toUpperCase())}
-        className="mt-1 w-full rounded-md border border-[--color-line] px-3 py-2 text-sm uppercase tracking-widest"
+        className="mt-1 w-full rounded-md border border-(--color-line) px-3 py-2 text-sm uppercase tracking-widest"
         placeholder="ABCD1234"
       />
 
       {error ? (
-        <p role="alert" className="mt-4 rounded-md bg-[--color-red-tint] px-3 py-2 text-sm text-[--color-red]">
+        <p role="alert" className="mt-4 rounded-md bg-(--color-red-tint) px-3 py-2 text-sm text-(--color-red)">
           {error}
         </p>
       ) : null}
@@ -70,7 +70,7 @@ export function LinkSeniorForm() {
       <button
         type="submit"
         disabled={busy || !code}
-        className="mt-6 w-full rounded-md bg-[--color-coral] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="mt-6 w-full rounded-md bg-(--color-coral) px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {busy ? 'Linking…' : 'Link'}
       </button>

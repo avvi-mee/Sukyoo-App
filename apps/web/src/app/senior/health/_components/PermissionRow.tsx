@@ -48,7 +48,7 @@ export function PermissionRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-[--color-line] py-2 last:border-b-0">
+    <div className="flex items-center justify-between gap-3 border-b border-(--color-line) py-2 last:border-b-0">
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
@@ -64,7 +64,7 @@ export function PermissionRow({
           value={accessLevel ?? 'view'}
           disabled={busy}
           onChange={(e) => setGranted(true, e.target.value as PermissionAccessLevel)}
-          className="rounded-md border border-[--color-line] px-2 py-1 text-xs"
+          className="rounded-md border border-(--color-line) px-2 py-1 text-xs"
         >
           <option value="view">Can view</option>
           <option value="manage">Can place orders</option>

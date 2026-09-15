@@ -25,7 +25,7 @@ export function RsvpButton({ eventId, userId, rsvped }: { eventId: string; userI
       onClick={handleClick}
       disabled={busy}
       className={`rounded-md px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${
-        rsvped ? 'border border-[--color-amber] text-[--color-amber]' : 'bg-[--color-amber] text-white'
+        rsvped ? 'border border-(--color-amber) text-(--color-amber)' : 'bg-(--color-amber) text-white'
       }`}
     >
       {busy ? '…' : rsvped ? "I'm going" : 'RSVP'}

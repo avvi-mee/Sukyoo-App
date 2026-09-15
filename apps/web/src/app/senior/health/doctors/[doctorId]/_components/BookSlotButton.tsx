@@ -30,18 +30,18 @@ export function BookSlotButton({ slotId, userId, mode }: { slotId: string; userI
     router.refresh();
   }
 
-  if (done) return <span className="text-sm font-semibold text-[--color-green]">Booked</span>;
+  if (done) return <span className="text-sm font-semibold text-(--color-green)">Booked</span>;
 
   return (
     <div className="text-right">
       <button
         onClick={handleClick}
         disabled={busy}
-        className="rounded-md bg-[--color-coral] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="rounded-md bg-(--color-coral) px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {busy ? 'Booking…' : 'Book'}
       </button>
-      {error ? <p className="mt-1 text-xs text-[--color-red]">{error}</p> : null}
+      {error ? <p className="mt-1 text-xs text-(--color-red)">{error}</p> : null}
     </div>
   );
 }

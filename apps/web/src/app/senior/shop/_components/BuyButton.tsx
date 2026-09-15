@@ -27,7 +27,7 @@ export function BuyButton({ productId, userId }: { productId: string; userId: st
     setMessage('Order placed — payment happens in the Sukyoo app for now.');
   }
 
-  if (status === 'ok') return <p className="text-sm font-semibold text-[--color-green]">{message}</p>;
+  if (status === 'ok') return <p className="text-sm font-semibold text-(--color-green)">{message}</p>;
 
   return (
     <div className="flex items-center gap-2">
@@ -36,16 +36,16 @@ export function BuyButton({ productId, userId }: { productId: string; userId: st
         min={1}
         value={qty}
         onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
-        className="w-14 rounded-md border border-[--color-line] px-2 py-1.5 text-sm"
+        className="w-14 rounded-md border border-(--color-line) px-2 py-1.5 text-sm"
       />
       <button
         onClick={handleClick}
         disabled={busy}
-        className="rounded-md bg-[--color-green] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="rounded-md bg-(--color-green) px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {busy ? 'Placing…' : 'Order'}
       </button>
-      {status === 'error' ? <p className="text-xs text-[--color-red]">{message}</p> : null}
+      {status === 'error' ? <p className="text-xs text-(--color-red)">{message}</p> : null}
     </div>
   );
 }

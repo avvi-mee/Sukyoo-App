@@ -29,3 +29,6 @@ google-play-service-account.json
 *.p12
 *.keystore
 *.jks
+
+.vercel
+.env*

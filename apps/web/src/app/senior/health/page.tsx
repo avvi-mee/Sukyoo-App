@@ -47,10 +47,10 @@ export default async function HealthPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold">Health</h1>
-        <p className="mt-1 text-[--color-ink-muted]">Vitals, medicines, doctors and who can see them.</p>
+        <p className="mt-1 text-(--color-ink-muted)">Vitals, medicines, doctors and who can see them.</p>
       </div>
 
-      <section className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+      <section className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
         <h2 className="text-lg font-bold">Vitals</h2>
         <ul className="mt-3 space-y-2">
           {(vitals ?? []).map((v) => (
@@ -59,57 +59,57 @@ export default async function HealthPage() {
               <span className="font-semibold">{formatVital(v.vital_type, v.reading_values as Record<string, number>)}</span>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                  v.status === 'high' ? 'bg-[--color-red-tint] text-[--color-red]' : v.status === 'low' ? 'bg-[--color-amber-tint] text-[--color-amber]' : 'bg-[--color-green-tint] text-[--color-green]'
+                  v.status === 'high' ? 'bg-(--color-red-tint) text-(--color-red)' : v.status === 'low' ? 'bg-(--color-amber-tint) text-(--color-amber)' : 'bg-(--color-green-tint) text-(--color-green)'
                 }`}
               >
                 {v.status}
               </span>
             </li>
           ))}
-          {!vitals?.length ? <p className="text-sm text-[--color-ink-muted]">No readings yet.</p> : null}
+          {!vitals?.length ? <p className="text-sm text-(--color-ink-muted)">No readings yet.</p> : null}
         </ul>
         <VitalsForm userId={profile.id} />
       </section>
 
-      <section className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+      <section className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
         <h2 className="text-lg font-bold">Medications</h2>
         {(medications ?? []).map((m) => (
           <p key={m.id} className="mt-2 text-sm font-semibold">
-            {m.name} {m.dosage ? <span className="font-normal text-[--color-ink-muted]">— {m.dosage}</span> : null}
+            {m.name} {m.dosage ? <span className="font-normal text-(--color-ink-muted)">— {m.dosage}</span> : null}
           </p>
         ))}
-        {!medications?.length ? <p className="mt-2 text-sm text-[--color-ink-muted]">No active medications.</p> : null}
+        {!medications?.length ? <p className="mt-2 text-sm text-(--color-ink-muted)">No active medications.</p> : null}
 
-        <h3 className="mt-4 text-sm font-semibold text-[--color-ink-muted]">Today&apos;s doses</h3>
+        <h3 className="mt-4 text-sm font-semibold text-(--color-ink-muted)">Today&apos;s doses</h3>
         <ul className="mt-2 space-y-2">
           {(doses ?? []).map((d) => (
-            <li key={d.id} className="flex items-center justify-between rounded-md border border-[--color-line] px-3 py-2 text-sm">
+            <li key={d.id} className="flex items-center justify-between rounded-md border border-(--color-line) px-3 py-2 text-sm">
               <span>{new Date(d.scheduled_for).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
               {d.status === 'taken' ? (
-                <span className="font-semibold text-[--color-green]">Taken</span>
+                <span className="font-semibold text-(--color-green)">Taken</span>
               ) : (
                 <DoseButton doseLogId={d.id} />
               )}
             </li>
           ))}
-          {!doses?.length ? <p className="text-sm text-[--color-ink-muted]">Nothing scheduled today.</p> : null}
+          {!doses?.length ? <p className="text-sm text-(--color-ink-muted)">Nothing scheduled today.</p> : null}
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+      <section className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
         <h2 className="text-lg font-bold">Doctors</h2>
-        <p className="mt-1 text-sm text-[--color-ink-muted]">Browse and book a consultation.</p>
+        <p className="mt-1 text-sm text-(--color-ink-muted)">Browse and book a consultation.</p>
         <Link
           href="/senior/health/doctors"
-          className="mt-3 inline-block rounded-md bg-[--color-coral] px-4 py-2.5 text-sm font-semibold text-white"
+          className="mt-3 inline-block rounded-md bg-(--color-coral) px-4 py-2.5 text-sm font-semibold text-white"
         >
           Find a doctor
         </Link>
       </section>
 
-      <section id="family-sharing" className="rounded-2xl border border-[--color-line] bg-[--color-surface] p-5">
+      <section id="family-sharing" className="rounded-2xl border border-(--color-line) bg-(--color-surface) p-5">
         <h2 className="text-lg font-bold">Family sharing</h2>
-        <p className="mt-1 text-sm text-[--color-ink-muted]">
+        <p className="mt-1 text-sm text-(--color-ink-muted)">
           Choose what each linked family member can see. Nothing is shared unless you turn it on here.
         </p>
 
@@ -118,7 +118,7 @@ export default async function HealthPage() {
         </div>
 
         {!familyLinks?.length ? (
-          <p className="mt-3 text-sm text-[--color-ink-muted]">
+          <p className="mt-3 text-sm text-(--color-ink-muted)">
             Nobody is linked yet. Generate a code above and share it with your family member — they enter it in their
             own app or web portal to link.
           </p>

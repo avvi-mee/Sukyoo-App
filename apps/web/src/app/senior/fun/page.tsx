@@ -22,7 +22,7 @@ export default async function FunPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold">Your stories</h1>
-      <p className="mt-1 text-[--color-ink-muted]">Record a memory to share with family, whenever you like.</p>
+      <p className="mt-1 text-(--color-ink-muted)">Record a memory to share with family, whenever you like.</p>
 
       <div className="mt-4">
         <Recorder userId={profile.id} />
@@ -30,17 +30,17 @@ export default async function FunPage() {
 
       <div className="mt-6 space-y-3">
         {withUrls.map((entry) => (
-          <div key={entry.id} className="rounded-xl border border-[--color-line] bg-[--color-surface] p-4">
+          <div key={entry.id} className="rounded-xl border border-(--color-line) bg-(--color-surface) p-4">
             <p className="font-bold">{entry.title}</p>
-            <p className="text-xs text-[--color-ink-muted]">{new Date(entry.created_at).toLocaleDateString()}</p>
+            <p className="text-xs text-(--color-ink-muted)">{new Date(entry.created_at).toLocaleDateString()}</p>
             {entry.url ? (
               <audio controls src={entry.url} className="mt-2 w-full" />
             ) : (
-              <p className="mt-2 text-sm text-[--color-ink-muted]">Not available.</p>
+              <p className="mt-2 text-sm text-(--color-ink-muted)">Not available.</p>
             )}
           </div>
         ))}
-        {!withUrls.length ? <p className="text-sm text-[--color-ink-muted]">No stories recorded yet.</p> : null}
+        {!withUrls.length ? <p className="text-sm text-(--color-ink-muted)">No stories recorded yet.</p> : null}
       </div>
     </div>
   );

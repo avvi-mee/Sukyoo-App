@@ -20,8 +20,8 @@ export function SeniorSwitcher({
           href={`${basePath}?senior=${s.seniorId}`}
           className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${
             s.seniorId === selectedId
-              ? 'border-[--color-coral] bg-[--color-coral-tint] text-[--color-coral]'
-              : 'border-[--color-line] text-[--color-ink-muted]'
+              ? 'border-(--color-coral) bg-(--color-coral-tint) text-(--color-coral)'
+              : 'border-(--color-line) text-(--color-ink-muted)'
           }`}
         >
           {s.fullName ?? 'Senior'}

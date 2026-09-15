@@ -40,12 +40,12 @@ export function VitalsForm({ userId }: { userId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 rounded-xl border border-[--color-line] bg-[--color-surface] p-4">
+    <form onSubmit={handleSubmit} className="mt-3 rounded-xl border border-(--color-line) bg-(--color-surface) p-4">
       <label className="block text-sm font-semibold">Log a reading</label>
       <select
         value={vitalType}
         onChange={(e) => setVitalType(e.target.value as VitalType)}
-        className="mt-2 w-full rounded-md border border-[--color-line] px-3 py-2 text-sm"
+        className="mt-2 w-full rounded-md border border-(--color-line) px-3 py-2 text-sm"
       >
         <option value="blood_pressure">Blood pressure</option>
         <option value="blood_sugar">Blood sugar</option>
@@ -60,7 +60,7 @@ export function VitalsForm({ userId }: { userId: string }) {
             placeholder="Systolic"
             value={systolic}
             onChange={(e) => setSystolic(e.target.value)}
-            className="w-1/2 rounded-md border border-[--color-line] px-3 py-2 text-sm"
+            className="w-1/2 rounded-md border border-(--color-line) px-3 py-2 text-sm"
           />
           <input
             required
@@ -68,7 +68,7 @@ export function VitalsForm({ userId }: { userId: string }) {
             placeholder="Diastolic"
             value={diastolic}
             onChange={(e) => setDiastolic(e.target.value)}
-            className="w-1/2 rounded-md border border-[--color-line] px-3 py-2 text-sm"
+            className="w-1/2 rounded-md border border-(--color-line) px-3 py-2 text-sm"
           />
         </div>
       ) : (
@@ -78,16 +78,16 @@ export function VitalsForm({ userId }: { userId: string }) {
           placeholder={vitalType === 'blood_sugar' ? 'mg/dL' : '%'}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="mt-2 w-full rounded-md border border-[--color-line] px-3 py-2 text-sm"
+          className="mt-2 w-full rounded-md border border-(--color-line) px-3 py-2 text-sm"
         />
       )}
 
-      {error ? <p className="mt-2 text-sm text-[--color-red]">{error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-(--color-red)">{error}</p> : null}
 
       <button
         type="submit"
         disabled={busy}
-        className="mt-3 w-full rounded-md bg-[--color-coral] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="mt-3 w-full rounded-md bg-(--color-coral) px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {busy ? 'Saving…' : 'Save reading'}
       </button>
