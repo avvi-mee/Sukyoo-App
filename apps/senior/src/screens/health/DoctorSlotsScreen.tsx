@@ -19,7 +19,7 @@ export function DoctorSlotsScreen() {
   function handleBook(slotId: string) {
     if (!userId) return;
     bookDoctor.mutate(
-      { slotId, patientId: userId, mode: params.mode },
+      { slotId, patientId: userId, bookedByUserId: userId, mode: params.mode },
       {
         onSuccess: () => {
           notify('Booked', `Your ${params.mode.replace('_', ' ')} consult with ${params.doctorName} is confirmed.`);

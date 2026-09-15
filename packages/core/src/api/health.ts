@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
-import type { BookingMode, HomeCarePricingType, PermissionResourceType } from '../database.types';
+import type { BookingMode, HomeCarePricingType, PermissionAccessLevel, PermissionResourceType } from '../database.types';
 
 // ---------------------------------------------------------------------------
 // Upcoming appointment (Home dashboard banner)
@@ -184,6 +184,33 @@ export function useDoctorSlots(doctorId: string | undefined, mode?: BookingMode)
   });
 }
 
+// Which booking modes (video/in_person/home_visit) a set of doctors
+// currently have at least one open future slot for — drives which mode
+// buttons MedicalCareScreen offers per doctor, so it never links to a
+// DoctorSlots screen that would just come back empty.
+export function useDoctorModes(doctorIds: string[]) {
+  return useQuery({
+    queryKey: ['doctorModes', doctorIds],
+    enabled: doctorIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('doctor_availability_slots')
+        .select('doctor_id, mode')
+        .in('doctor_id', doctorIds)
+        .eq('is_booked', false)
+        .gte('start_at', new Date().toISOString());
+      if (error) throw error;
+      const byDoctor = new Map<string, BookingMode[]>();
+      for (const row of data ?? []) {
+        const modes = byDoctor.get(row.doctor_id) ?? [];
+        if (!modes.includes(row.mode)) modes.push(row.mode);
+        byDoctor.set(row.doctor_id, modes);
+      }
+      return byDoctor;
+    },
+  });
+}
+
 export function useBookDoctor() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -194,21 +221,18 @@ export function useBookDoctor() {
       mode: BookingMode;
       addressText?: string;
     }) => {
-      const { data, error } = await supabase
-        .from('doctor_bookings')
-        .insert({
-          slot_id: input.slotId,
-          patient_id: input.patientId,
-          booked_by_user_id: input.bookedByUserId,
-          mode: input.mode,
-          address_text: input.addressText ?? null,
-        })
-        .select()
-        .single();
+      // One atomic, row-locking RPC rather than insert-then-best-effort-update
+      // — the update half used to silently affect 0 rows with no error,
+      // leaving a booked slot listed as available forever (see
+      // book_doctor_slot() in the security-hardening migration).
+      const { data, error } = await supabase.rpc('book_doctor_slot', {
+        p_slot_id: input.slotId,
+        p_patient_id: input.patientId,
+        p_booked_by_user_id: input.bookedByUserId,
+        p_mode: input.mode,
+        p_address_text: input.addressText ?? null,
+      });
       if (error) throw error;
-      // Best-effort — the unique constraint on doctor_bookings.slot_id is the
-      // real double-booking guard; this just keeps the "available slots" list accurate.
-      await supabase.from('doctor_availability_slots').update({ is_booked: true }).eq('id', input.slotId);
       return data;
     },
     onSuccess: (_data, input) => {
@@ -424,11 +448,22 @@ export function usePermissionGrants(familyLinkId: string | undefined) {
 export function useSetPermissionGrant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { familyLinkId: string; resourceType: PermissionResourceType; enabled: boolean }) => {
+    mutationFn: async (input: {
+      familyLinkId: string;
+      resourceType: PermissionResourceType;
+      enabled: boolean;
+      // 'manage' is required for the 'order' resource type specifically —
+      // create_order() only authorizes family-assisted spending on a
+      // 'manage' grant, never 'view' (see the security-hardening
+      // migration). Defaults to 'view' for every other resource type.
+      accessLevel?: PermissionAccessLevel;
+    }) => {
       if (input.enabled) {
-        const { error } = await supabase
-          .from('permission_grants')
-          .insert({ family_link_id: input.familyLinkId, resource_type: input.resourceType, access_level: 'view' });
+        const { error } = await supabase.from('permission_grants').insert({
+          family_link_id: input.familyLinkId,
+          resource_type: input.resourceType,
+          access_level: input.accessLevel ?? 'view',
+        });
         if (error) throw error;
       } else {
         const { error } = await supabase

@@ -1,7 +1,7 @@
 import { AppState } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { secureStoreAdapter } from './secureStoreAdapter';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -12,9 +12,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Session storage via expo-secure-store (Keychain / Android Keystore,
+// WHEN_UNLOCKED_THIS_DEVICE_ONLY) rather than plain AsyncStorage — this app
+// holds health records, and a lost/stolen device shouldn't leave a live
+// session sitting in unencrypted storage. See secureStoreAdapter.ts for the
+// chunking this requires.
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: secureStoreAdapter,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

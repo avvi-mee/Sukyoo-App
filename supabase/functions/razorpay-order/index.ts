@@ -25,6 +25,29 @@ Deno.serve(async (req) => {
     if (order.belongs_to_user_id !== callerId && order.ordered_by_user_id !== callerId && order.payer_user_id !== callerId) {
       return json({ error: 'not a participant on this order' }, 403);
     }
+    if (order.status !== 'pending') {
+      return json({ error: `order is already ${order.status}` }, 409);
+    }
+
+    // Idempotency: a retry (network blip, double-tap) reuses the existing
+    // Razorpay order rather than creating a second one — without this, a
+    // paid order could accumulate a duplicate `payments` row per invocation.
+    const { data: existingPayment } = await admin
+      .from('payments')
+      .select('*')
+      .eq('order_id', order.id)
+      .neq('status', 'failed')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existingPayment?.razorpay_order_id) {
+      return json({
+        razorpayOrderId: existingPayment.razorpay_order_id,
+        amount: Math.round(Number(existingPayment.amount) * 100),
+        currency: 'INR',
+        razorpayKeyId,
+      });
+    }
 
     const amountPaise = Math.round(Number(order.subtotal) * 100);
     const auth = btoa(`${razorpayKeyId}:${razorpayKeySecret}`);

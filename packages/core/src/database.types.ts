@@ -573,7 +573,9 @@ export interface Database {
         Row: { user_id: string; content_id: string; position_seconds: number; updated_at: string };
         Insert: Insertable<Database['public']['Tables']['watch_progress']['Row'], 'user_id' | 'content_id'>;
         Update: Partial<Database['public']['Tables']['watch_progress']['Row']>;
-        Relationships: [];
+        Relationships: [
+          { foreignKeyName: 'watch_progress_content_id_fkey'; columns: ['content_id']; isOneToOne: false; referencedRelation: 'content_items'; referencedColumns: ['id'] }
+        ];
       };
       life_story_entries: {
         Row: {
@@ -604,12 +606,37 @@ export interface Database {
       ensure_todays_doses: { Args: { p_owner_id: string }; Returns: Database['public']['Tables']['dose_logs']['Row'][] };
       get_dose_logs: { Args: { p_owner_id: string; p_for_date?: string }; Returns: Database['public']['Tables']['dose_logs']['Row'][] };
       create_family_invite: { Args: { p_relationship_type?: string | null }; Returns: Database['public']['Tables']['family_invites']['Row'] };
-      accept_family_invite: { Args: { p_code: string }; Returns: Database['public']['Tables']['family_links']['Row'] };
+      // Returns a status object as of the invite-hardening migration, not a
+      // bare family_links row — see accept_family_invite() there.
+      accept_family_invite: { Args: { p_code: string }; Returns: Json };
       create_order: {
         Args: { p_belongs_to_user_id: string; p_items: Json; p_payer_user_id?: string | null };
         Returns: Database['public']['Tables']['orders']['Row'];
       };
       get_life_story_entries: { Args: { p_owner_id: string }; Returns: Database['public']['Tables']['life_story_entries']['Row'][] };
+      // Added by supabase/migrations/20260817120000_security_hardening.sql.
+      // Hand-written stopgap: regenerate this whole file with
+      // `supabase gen types typescript` against the live project once these
+      // migrations are applied there, rather than trusting this by hand
+      // longer than necessary.
+      set_family_link_status: {
+        Args: { p_link_id: string; p_status: FamilyLinkStatus };
+        Returns: Database['public']['Tables']['family_links']['Row'];
+      };
+      book_doctor_slot: {
+        Args: {
+          p_slot_id: string;
+          p_patient_id: string;
+          p_booked_by_user_id: string;
+          p_mode: BookingMode;
+          p_address_text?: string | null;
+        };
+        Returns: Database['public']['Tables']['doctor_bookings']['Row'];
+      };
+      set_sos_event_status: {
+        Args: { p_sos_event_id: string; p_status: SosStatus };
+        Returns: Database['public']['Tables']['sos_events']['Row'];
+      };
     };
     Enums: {
       user_role: UserRole;

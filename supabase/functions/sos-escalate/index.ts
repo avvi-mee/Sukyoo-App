@@ -4,14 +4,25 @@
 //
 // Deploy: npx supabase functions deploy sos-escalate
 // Schedule (SQL, run once against the project): see bottom of this file.
-// Secrets needed: MSG91_AUTH_KEY.
+// Secrets needed: MSG91_AUTH_KEY, ESCALATE_SECRET, MSG91_TEMPLATE_ID.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const GRACE_WINDOW_SECONDS = 60;
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const escalateSecret = Deno.env.get('ESCALATE_SECRET')!;
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  // This function used to ignore the request entirely (AUDIT_2026-08.md
+  // §4.4) — any caller could drive paid SMS and burn each event's one
+  // escalation attempt early, silently disarming the fallback. It's invoked
+  // by pg_cron, not a signed-in user, so it's gated on a shared secret
+  // (config.toml sets verify_jwt = false for this function) rather than a
+  // Supabase JWT.
+  if (req.headers.get('x-escalate-secret') !== escalateSecret) {
+    return json({ error: 'not authorized' }, 401);
+  }
+
   const admin = createClient(supabaseUrl, serviceRoleKey);
   const cutoff = new Date(Date.now() - GRACE_WINDOW_SECONDS * 1000).toISOString();
 
@@ -53,24 +64,34 @@ function json(body: unknown, status = 200) {
 
 async function sendSms(phone: string, message: string) {
   const authKey = Deno.env.get('MSG91_AUTH_KEY');
-  if (!authKey) {
-    console.warn('MSG91_AUTH_KEY not set — skipping SMS send');
+  const templateId = Deno.env.get('MSG91_TEMPLATE_ID');
+  if (!authKey || !templateId) {
+    console.warn('MSG91_AUTH_KEY / MSG91_TEMPLATE_ID not set — skipping SMS send');
     return;
   }
+  // The /flow/ endpoint expects a DLT-registered template_id + a recipients
+  // array, not the {mobiles, message} shape this previously sent — the SOS
+  // SMS fallback silently never worked (AUDIT_2026-08.md §4.12).
   await fetch('https://api.msg91.com/api/v5/flow/', {
     method: 'POST',
     headers: { authkey: authKey, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mobiles: phone, message }),
+    body: JSON.stringify({
+      template_id: templateId,
+      recipients: [{ mobiles: phone, message }],
+    }),
   });
 }
 
-// Schedule this function from the Supabase SQL editor once deployed:
+// Schedule this function from the Supabase SQL editor once deployed. The
+// secret goes in the header this function checks above, never a
+// service-role key (cron.job rows are queryable, so keep the powerful key
+// out of them entirely).
 //
 // select cron.schedule(
 //   'sos-escalate-every-30s',
 //   '30 seconds',
 //   $$ select net.http_post(
 //     url := '<your-project>.supabase.co/functions/v1/sos-escalate',
-//     headers := jsonb_build_object('Authorization', 'Bearer <service-role-key>')
+//     headers := jsonb_build_object('x-escalate-secret', '<ESCALATE_SECRET value>')
 //   ) $$
 // );

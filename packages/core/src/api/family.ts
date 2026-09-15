@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
+import type { FamilyLinkStatus } from '../database.types';
 
 // ---------------------------------------------------------------------------
 // Pairing (invite code flow — see accept_family_invite in
@@ -16,15 +17,51 @@ export function useCreateFamilyInvite() {
   });
 }
 
+// accept_family_invite() now returns a status object rather than a bare row
+// (see the invite-hardening migration) — 'ok' | 'invalid' | 'self' |
+// 'rate_limited', each surfaced as a real error message rather than a raw
+// Postgres exception.
+const ACCEPT_INVITE_MESSAGES: Record<string, string> = {
+  invalid: 'That invite code is invalid or has expired.',
+  self: 'You cannot link to your own account.',
+  rate_limited: 'Too many attempts — please wait a few minutes and try again.',
+};
+
 export function useAcceptFamilyInvite() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (code: string) => {
       const { data, error } = await supabase.rpc('accept_family_invite', { p_code: code });
       if (error) throw error;
-      return data;
+      const result = data as { status: string; link?: unknown };
+      if (result.status !== 'ok') {
+        throw new Error(ACCEPT_INVITE_MESSAGES[result.status] ?? 'Could not accept that invite code.');
+      }
+      return result.link;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['linkedSeniors'] }),
+  });
+}
+
+// Revoking a family link cascades to every permission_grants row under it
+// (see set_family_link_status() in the security-hardening migration) — it is
+// the only client-reachable transition; re-activating a link goes back
+// through accept_family_invite() only.
+export function useSetFamilyLinkStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { linkId: string; status: FamilyLinkStatus }) => {
+      const { data, error } = await supabase.rpc('set_family_link_status', {
+        p_link_id: input.linkId,
+        p_status: input.status,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linkedSeniors'] });
+      queryClient.invalidateQueries({ queryKey: ['familyLinks'] });
+    },
   });
 }
 

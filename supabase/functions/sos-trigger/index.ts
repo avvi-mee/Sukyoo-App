@@ -64,7 +64,11 @@ Deno.serve(async (req) => {
       ).catch((e) => console.error('FCM push failed', e));
     }
 
-    return json({ sos_event_id: sosEvent.id });
+    // Honest counts, not "sent successfully" — recipients is how many
+    // linked family members exist at all, delivered is how many actually had
+    // a push token to send to. Neither confirms the notification reached a
+    // screen; the app-level ack (useAckSosNotification) is what does that.
+    return json({ sos_event_id: sosEvent.id, recipients: recipientIds.length, delivered: tokens?.length ?? 0 });
   } catch (e) {
     console.error(e);
     return json({ error: String(e) }, 500);
@@ -78,6 +82,10 @@ function json(body: unknown, status = 200) {
 // FCM HTTP v1 push via a Firebase service account. Data-only payload (no
 // `notification` field) so the family app's background handler — not the OS
 // default tray — decides how to render this (Notifee full-screen alert).
+//
+// AUDIT_2026-08.md §1.5: no `apns` block meant iOS silently dropped this —
+// a data-only push needs `apns-push-type: background` + `content-available`
+// to be delivered at all on iOS.
 async function sendFcmPush(tokens: string[], payload: { title: string; body: string; data: Record<string, string> }) {
   const serviceAccountJson = Deno.env.get('FCM_SERVICE_ACCOUNT_JSON');
   if (!serviceAccountJson) {
@@ -97,6 +105,10 @@ async function sendFcmPush(tokens: string[], payload: { title: string; body: str
             token,
             data: { ...payload.data, title: payload.title, body: payload.body },
             android: { priority: 'high' },
+            apns: {
+              headers: { 'apns-push-type': 'background', 'apns-priority': '5' },
+              payload: { aps: { 'content-available': 1 } },
+            },
           },
         }),
       })

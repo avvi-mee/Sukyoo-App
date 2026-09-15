@@ -371,6 +371,17 @@ authorization_url_path = "/oauth/consent"
 # Allow dynamic client registration
 allow_dynamic_registration = false
 
+# Razorpay's webhook and pg_cron's sos-escalate trigger can't present a
+# Supabase user JWT — verify_jwt defaults to true, which silently rejected
+# every call to both before the handler ever ran (AUDIT_2026-08.md §4.6 and
+# §4.4). Each verifies itself instead: razorpay-webhook checks the Razorpay
+# HMAC signature, sos-escalate checks the ESCALATE_SECRET header.
+[functions.razorpay-webhook]
+verify_jwt = false
+
+[functions.sos-escalate]
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 # Supported request policies: `oneshot`, `per_worker`.

@@ -36,6 +36,20 @@ Deno.serve(async (req) => {
       if (data.caller_id !== callerId && data.callee_id !== callerId) return json({ error: 'not a participant' }, 403);
       session = data;
     } else if (body.calleeId) {
+      // AUDIT_2026-08.md §4.5: calleeId was used verbatim with no
+      // relationship check. Both apps declare USE_FULL_SCREEN_INTENT and
+      // render an incoming call over the lock screen, so this was a remote
+      // full-screen-wakeup primitive against arbitrary elderly users.
+      const { data: link } = await admin
+        .from('family_links')
+        .select('id')
+        .eq('status', 'active')
+        .or(
+          `and(senior_id.eq.${callerId},family_member_id.eq.${body.calleeId}),and(senior_id.eq.${body.calleeId},family_member_id.eq.${callerId})`
+        )
+        .maybeSingle();
+      if (!link) return json({ error: 'no active relationship with that user' }, 403);
+
       const channelName = `call-${crypto.randomUUID()}`;
       const { data, error } = await admin
         .from('call_sessions')
@@ -81,6 +95,11 @@ function json(body: unknown, status = 200) {
 // getGoogleAccessToken implementation. Duplicated rather than shared across
 // two Edge Functions since Deno Deploy functions are independently bundled;
 // promote to a shared _shared/ module if a third function needs this.
+//
+// AUDIT_2026-08.md §1.5: this payload had no `apns` block. iOS silently
+// drops a data-only FCM message that lacks `apns-push-type: background` +
+// `content-available: 1` — the blocker on incoming calls reaching iOS was
+// never the notification library, it was this.
 async function sendFcmData(tokens: string[], data: Record<string, unknown>) {
   const serviceAccountJson = Deno.env.get('FCM_SERVICE_ACCOUNT_JSON');
   if (!serviceAccountJson) {
@@ -111,7 +130,17 @@ async function sendFcmData(tokens: string[], data: Record<string, unknown>) {
       fetch(`https://fcm.googleapis.com/v1/projects/${serviceAccount.project_id}/messages:send`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: { token: deviceToken, data: stringData, android: { priority: 'high' } } }),
+        body: JSON.stringify({
+          message: {
+            token: deviceToken,
+            data: stringData,
+            android: { priority: 'high' },
+            apns: {
+              headers: { 'apns-push-type': 'background', 'apns-priority': '5' },
+              payload: { aps: { 'content-available': 1 } },
+            },
+          },
+        }),
       })
     )
   );

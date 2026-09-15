@@ -10,7 +10,7 @@
   },
   "peerDependencies": {
     "react": "*",
-    "@react-native-async-storage/async-storage": "*"
+    "expo-secure-store": "*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

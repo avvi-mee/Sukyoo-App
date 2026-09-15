@@ -77,6 +77,25 @@ export function useBookTrip() {
   });
 }
 
+// The current user's own booking for this trip, if any — drives the
+// "looking for a companion" toggle's initial value.
+export function useMyTripBooking(tripId: string | undefined, userId: string | undefined) {
+  return useQuery({
+    queryKey: ['myTripBooking', tripId, userId],
+    enabled: !!tripId && !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('trip_bookings')
+        .select('*')
+        .eq('trip_id', tripId!)
+        .eq('user_id', userId!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 // Who else on this trip is looking for a travel companion right now.
 export function useTripCompanions(tripId: string | undefined, excludeUserId: string | undefined) {
   return useQuery({
